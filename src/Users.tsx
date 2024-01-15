@@ -14,5 +14,7 @@ export class User {
     this.email = email;
     this.name = name;
     this.type = type || UserType.STUDENT;
+     // Prevent extensions after initializing properties
+    Object.preventExtensions(this);
   }
 }

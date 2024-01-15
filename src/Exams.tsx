@@ -6,5 +6,8 @@ export class Exam {
   constructor(name: string, examQuestion: string) {
     this.name = name;
     this.examQuestion = examQuestion;
+     // Prevent extensions after initializing properties
+    Object.preventExtensions(this);
   }
+
 }

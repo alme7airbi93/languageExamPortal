@@ -15,5 +15,7 @@ export class ExamEnrollment {
     this.examID = examID;
     this.studentScore = studentScore;
     this.openaiReplay = openaiReplay || [];
+     // Prevent extensions after initializing properties
+    Object.preventExtensions(this);
   }
 }
