@@ -1,47 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import { User } from './Users'
-import { Exam } from './Exams'
-import { ExamEnrollment } from './ExamEnroll'
 
-function App() {
-  const [count, setCount] = useState(0)
-  enum UserType {
-  TEACHER = 'TEACHER',
-  STUDENT = 'STUDENT',
-}
+import { useState, Key } from "react";
+import { User,UserType } from "./Classes/Users"
+import UserForm from "./UserForm"
 
+const App : React.FC = () => {
+ const [users, setUsers] = useState<User[]>([]);
 
+  const handleAddUser = (user: User) => {
+    // Update the users state with the new user
+    setUsers((prevUsers) => [...prevUsers, user]);
+  };
 
-// Example Usage
-const userInstance = new User('example@email.com', 'Hamza khan', UserType.TEACHER);
-const examInstance = new Exam('Math Exam', 'Solve the following problems...');
-const enrollmentInstance = new ExamEnrollment('000000', '111111', '90', ['Replay 1', 'Replay 2']);
-
-// Determine the types
-console.log('User Instance Types:', {
-  email: typeof userInstance.email,
-  name: typeof userInstance.name,
-  type: userInstance.type,
-});
-
-console.log('Exam Instance Types:', {
-  name: typeof examInstance.name,
-  examQuestion: typeof examInstance.examQuestion,
-});
-
-console.log('Enrollment Instance Types:', {
-  studentID: typeof enrollmentInstance.studentID,
-  examID: typeof enrollmentInstance.examID,
-  studentScore: typeof enrollmentInstance.studentScore,
-  openaiReplay: typeof enrollmentInstance.openaiReplay,
-});
   return (
-    <>
-    </>
-  )
-}
+    <div>
+      <h1>User List</h1>
+      <ul>
+        {users.map((user: { name: string; email: string; type: UserType }, index: Key ) => (
+          <li key={index}>
+            {user.name} - {user.email} - {user.type}
+          </li>
+        ))}
+      </ul>
+
+      <h2>Add New User</h2>
+      <UserForm onAddUser={handleAddUser} />
+    </div>
+  );
+};
+
 
 export default App
