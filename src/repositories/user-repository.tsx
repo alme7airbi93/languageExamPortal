@@ -1,5 +1,6 @@
 import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, DocumentReference, DocumentData, getDoc } from 'firebase/firestore';
-import { User,UserInterface } from '../classes/Users';
+// import { User,UserInterface } from '../classes/Users';
+import { User,UserInterface } from '../Classes/Users';
 import { database , app} from './firebase-config';
 
 class UserRepository {
@@ -36,7 +37,7 @@ class UserRepository {
       return newUser;
     } catch (error) {
       console.error('Error adding user: ', error);
-      throw error; // Rethrow the error to maintain the Promise<User> return type
+      throw error; 
     }
   }
 
@@ -56,7 +57,7 @@ class UserRepository {
   }
     catch (error) {
       console.error('Error getting users: ', error);
-      return [];
+       throw error; 
     }
   }
 
@@ -70,6 +71,7 @@ class UserRepository {
       });
     } catch (error) {
       console.error('Error updating user: ', error);
+        throw error; 
     }
   }
 
@@ -79,6 +81,7 @@ class UserRepository {
       await deleteDoc(doc(this.db, 'users', userId));
     } catch (error) {
       console.error('Error deleting user: ', error);
+        throw error; 
     }
   }
 }

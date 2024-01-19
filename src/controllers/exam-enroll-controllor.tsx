@@ -1,5 +1,5 @@
 import EnrollExamRepository from '../repositories/enroll-exam-repository'
-import { EnrollExamInterface } from '../classes/ExamEnroll';
+import { EnrollExamInterface } from '../Classes/ExamEnroll';
 
 class EnrollExamController {
   private enrollExamRepository: EnrollExamRepository;
@@ -14,21 +14,22 @@ class EnrollExamController {
       return enrollments;
     } catch (error) {
       console.error('Error fetching exam enrollments: ', error);
-      return [];
+      throw error;
     }
   }
-
-  async addExamEnrollment(examEnrollmentData: EnrollExamInterface): Promise<void> {
-    try {
-      await this.enrollExamRepository.addExamEnrollment(examEnrollmentData);
-    } catch (error) {
-      console.error('Error adding exam enrollment: ', error);
-    }
+  async addExamEnrollment(examEnrollmentData: EnrollExamInterface): Promise<EnrollExamInterface> {
+  try {
+    const enrollment = await this.enrollExamRepository.addExamEnrollment(examEnrollmentData);
+    return enrollment;
+  } catch (error) {
+    console.error('Error adding exam enrollment: ', error);
+    throw error;
   }
+}
 
-  async updateExamEnrollment(examEnrollmentData: EnrollExamInterface): Promise<void> {
+  async updateExamEnrollment(examEnrollmentID:string, examEnrollmentData: EnrollExamInterface): Promise<void> {
     try {
-      await this.enrollExamRepository.updateExamEnrollment(examEnrollmentData);
+      await this.enrollExamRepository.updateExamEnrollment(examEnrollmentID,examEnrollmentData);
     } catch (error) {
       console.error('Error updating exam enrollment: ', error);
     }
@@ -41,6 +42,19 @@ class EnrollExamController {
       console.error('Error deleting exam enrollment: ', error);
     }
   }
+
+   async fetchSelectedExamEnrollments(examID:string): 
+   Promise<EnrollExamInterface[]> {
+    try {
+      const enrollments = await this.enrollExamRepository.getSelectedExamEnrollment(examID);
+      
+      return enrollments
+    } catch (error) {
+      console.error('Error fetching exam enrollments: ', error);
+      throw error;
+    }
+  }
+
 }
 
 export default EnrollExamController;

@@ -1,5 +1,5 @@
 import ExamRepository from '../repositories/exam-repository';
-import { ExamInterface } from '../classes/Exams';
+import { ExamInterface } from '../Classes/Exams';
 
 class ExamController {
   private examRepository: ExamRepository;
@@ -29,7 +29,6 @@ class ExamController {
   }
 
   async updateExam(exam: ExamInterface): Promise<void> {
-    console.log("exam in controller", exam);
     
     try {
       await this.examRepository.updateExam(exam);

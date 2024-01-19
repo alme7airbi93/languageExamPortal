@@ -1,5 +1,5 @@
 import UserRepository from '../repositories/user-repository';
-import { UserInterface } from '../classes/Users';
+import { UserInterface } from '../Classes/Users';
 
 class UserController {
   private userRepository: UserRepository;

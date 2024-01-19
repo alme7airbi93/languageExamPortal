@@ -1,5 +1,5 @@
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, DocumentReference, DocumentData, getDoc } from 'firebase/firestore';
-import { ExamEnrollment,EnrollExamInterface } from '../classes/ExamEnroll';
+import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, DocumentReference, DocumentData, getDoc, where, query } from 'firebase/firestore';
+import { ExamEnrollment,EnrollExamInterface } from '../Classes/ExamEnroll';
 import { database , app} from './firebase-config';
 
 class EnrollExamRepository {
@@ -22,14 +22,8 @@ class EnrollExamRepository {
       
         }
       );
-
-      // Use getDoc to fetch the added document
       const docSnapshot = await getDoc(docRef);
-
-      // Extract the enrollment data from the document snapshot
-      const examEnrollmentData = docSnapshot.data() as Omit<EnrollExamInterface, 'id'>; // Exclude 'id' from data
-
-      // Create a new enrollment instance with the 'id' and other data
+      const examEnrollmentData = docSnapshot.data() as Omit<EnrollExamInterface, 'id'>;
       const newExamEnrollment: ExamEnrollment = {
         id: docSnapshot.id,
         ...examEnrollmentData,
@@ -53,21 +47,22 @@ class EnrollExamRepository {
          studentID: data.studentID,
          examID:data.examID,
          studentScore: data.studentScore,
-         openaiReplay: data.openaiReplay
+         openaiReplay: data.openaiReplay,
+          studentAnswer:data.studentAnswer
       } as EnrollExamInterface;
     });
   }
     catch (error) {
       console.error('Error getting exam enrollment: ', error);
-      return [];
+       throw error; 
     }
   }
 
   // Update a exam enrollments
-  async updateExamEnrollment(examEnrollment: EnrollExamInterface): Promise<void> {
+  async updateExamEnrollment(examEnrollmentId: string, examEnrollment: EnrollExamInterface): Promise<void> {
     
     try {
-      await updateDoc(doc(this.db, 'enrollments', examEnrollment.id), {
+      await updateDoc(doc(this.db, 'enrollments', examEnrollmentId), {
           studentID: examEnrollment.studentID,
           examID: examEnrollment.examID,
           studentScore: examEnrollment.studentScore,
@@ -76,6 +71,7 @@ class EnrollExamRepository {
       });
     } catch (error) {
       console.error('Error updating exam enrollment: ', error);
+        throw error; 
     }
   }
 
@@ -85,8 +81,35 @@ class EnrollExamRepository {
       await deleteDoc(doc(this.db, 'enrollments', examEnrollmentId));
     } catch (error) {
       console.error('Error deleting exam enrollment: ', error);
+        throw error; 
     }
   }
+
+async getSelectedExamEnrollment(examID: string): Promise<ExamEnrollment[]> {
+  try {
+    const q = query(collection(this.db, 'enrollments'), where('examID', '==', examID));
+    const querySnapshot = await getDocs(q);
+
+    const enrollments: ExamEnrollment[] = [];
+
+    if (!querySnapshot.empty) {
+      querySnapshot.docs.forEach((doc) => {
+        const examEnrollmentData = doc.data() as Omit<EnrollExamInterface, 'id'>;
+        const selectedExamEnrollment: ExamEnrollment = {
+          id: doc.id,
+          ...examEnrollmentData,
+        };
+        enrollments.push(selectedExamEnrollment);
+      });
+    }
+
+    return enrollments;
+  } catch (error) {
+    console.error('Error getting selected exam enrollments: ', error);
+    throw error;
+  }
+}
+
 }
 
 export default EnrollExamRepository;

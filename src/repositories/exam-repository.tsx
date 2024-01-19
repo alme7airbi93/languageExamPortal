@@ -1,5 +1,5 @@
 import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, DocumentReference, DocumentData, getDoc } from 'firebase/firestore';
-import { Exam,ExamInterface } from '../classes/Exams';
+import { Exam,ExamInterface } from '../Classes/Exams';
 import { database , app} from './firebase-config';
 
 class ExamRepository {
@@ -53,13 +53,12 @@ class ExamRepository {
   }
     catch (error) {
       console.error('Error getting exams: ', error);
-      return [];
+       throw error; 
     }
   }
 
   // Update a exam
   async updateExam(exam: ExamInterface): Promise<void> {
-    console.log("exam is in repo:", exam);
     
     try {
       await updateDoc(doc(this.db, 'exams', exam.id), {
@@ -68,6 +67,8 @@ class ExamRepository {
       });
     } catch (error) {
       console.error('Error updating exams: ', error);
+      throw error
+      
     }
   }
 
@@ -77,6 +78,7 @@ class ExamRepository {
       await deleteDoc(doc(this.db, 'exams', examId));
     } catch (error) {
       console.error('Error deleting exams: ', error);
+        throw error; 
     }
   }
 }

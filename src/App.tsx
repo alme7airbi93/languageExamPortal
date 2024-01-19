@@ -1,30 +1,29 @@
-
-import { useState, Key } from "react";
-import { User,UserType } from "./Classes/Users"
-import UserForm from "./UserForm"
+import { Routes,Route ,NavLink} from 'react-router-dom';
+import StudentPage from './pages/StudentPage';
+import TeacherPage from './pages/TeacherPage';
+import HomePage from './pages/HomePage';
+import Login from './component/Login.tsx';
 
 const App : React.FC = () => {
- const [users, setUsers] = useState<User[]>([]);
-
-  const handleAddUser = (user: User) => {
-    // Update the users state with the new user
-    setUsers((prevUsers) => [...prevUsers, user]);
-  };
-
   return (
-    <div>
-      <h1>User List</h1>
-      <ul>
-        {users.map((user: { name: string; email: string; type: UserType }, index: Key ) => (
-          <li key={index}>
-            {user.name} - {user.email} - {user.type}
-          </li>
-        ))}
-      </ul>
-
-      <h2>Add New User</h2>
-      <UserForm onAddUser={handleAddUser} />
-    </div>
+    <>
+     <div className='nav_container'>
+       <div className='nav'>
+        <div className='nav_item'><NavLink to="/">Home</NavLink></div>
+        <div className='nav_item' ><NavLink to="/student">Student Page</NavLink></div>
+        <div className='nav_item' ><NavLink to="/teacher">Teacher Page</NavLink></div>
+        
+      </div>
+      <div><Login/></div>
+     </div>
+                   
+    <Routes>
+      <Route path='/' element={<HomePage/>}/>
+      <Route path='/student' element={<StudentPage />}/>
+      <Route path='/teacher' element={<TeacherPage />}/>
+    
+    </Routes>
+    </>
   );
 };
 
