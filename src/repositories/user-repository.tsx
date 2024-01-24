@@ -19,6 +19,7 @@ class UserRepository {
           email: user.email,
           name: user.name,
           type: user.type,
+          uid: user.id,
         }
       );
 

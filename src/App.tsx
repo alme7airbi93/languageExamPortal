@@ -2,9 +2,10 @@ import { Routes, Route, NavLink } from "react-router-dom";
 import StudentPage from "./pages/StudentPage";
 import TeacherPage from "./pages/TeacherPage";
 import HomePage from "./pages/HomePage";
-import Login from "./component/Login.tsx";
+import Login from "./component/Login/index.tsx";
 import PrivateRoute from "./component/PrivateRoute/PrivateRoute.tsx";
 import AuthProvider from "./hooks/AuthProvider.tsx";
+import Register from "./component/Register/index.tsx";
 
 const App: React.FC = () => {
   return (
@@ -26,6 +27,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route element={<PrivateRoute />}>
             <Route path="/student" element={<StudentPage />} />
             <Route path="/teacher" element={<TeacherPage />} />
