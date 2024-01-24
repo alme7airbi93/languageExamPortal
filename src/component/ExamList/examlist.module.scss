@@ -1,0 +1,63 @@
+.exam__name{
+  text-align: end;  
+  font-size: medium;
+}
+
+.exam__info{
+   border: 2px solid black;
+   margin: 5px 0px;
+   padding: 2px 5px;
+   cursor: pointer;
+}
+
+.list_item {
+  cursor: pointer;
+  border: 1px solid #ddd !important;
+  margin-bottom: 20px !important;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 14px !important;
+}
+
+.list_group {
+  border: none !important;
+  overflow: auto;
+}
+
+.list_group::-webkit-scrollbar {
+  display: none;
+}
+
+.list_item:hover {
+  background-color: #f5f5f5;
+  transform: scale(1.02);
+}
+
+.exam_name {
+  margin: 0;
+  color: #333;
+  text-align: center;
+}
+
+.exam_header {
+  color: #dde5f0 !important;
+  text-align: center;
+  font-size: 32px !important;
+}
+
+.Card {
+  // border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 3px solid #B0C4DE !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  background-color: #486081 !important;
+  padding: 10px;
+  border-radius: 20px !important;
+  max-height: 90vh !important;
+}
+
+.search_input, .search_input:focus {
+  box-shadow: none !important;
+  border: none !important;
+}
+

@@ -14,6 +14,7 @@ import {
 import { auth } from "../repositories/firebase-config";
 import UserController from "../controllers/userController";
 import { UserType } from "../Classes/Users";
+import Loader from "../component/Loader";
 
 interface User {
   // Define the shape of your user object here
@@ -142,7 +143,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   if (isInitialized === false) {
-    return <>Loading...</>;
+    return <Loader />;
   }
 
   return (
