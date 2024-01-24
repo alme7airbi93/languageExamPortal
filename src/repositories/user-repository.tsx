@@ -1,4 +1,4 @@
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, DocumentReference, DocumentData, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, DocumentReference, DocumentData, getDoc, query, where } from 'firebase/firestore';
 // import { User,UserInterface } from '../classes/Users';
 import { User,UserInterface } from '../Classes/Users';
 import { database , app} from './firebase-config';
@@ -61,6 +61,28 @@ class UserRepository {
        throw error; 
     }
   }
+
+  async getUser(uid: string): Promise<UserInterface | null> {
+    try {
+      const userQuery = query(collection(this.db, 'users'), where('uid', '==', uid));
+      const querySnapshot = await getDocs(userQuery);
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        const data = userDoc.data();
+        return {
+          id: userDoc.id,
+          email: data.email,
+          name: data.name,
+          type: data.type,
+        } as UserInterface;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  
 
   // Update a user
   async updateUser(user: UserInterface): Promise<void> {

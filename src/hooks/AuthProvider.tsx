@@ -1,6 +1,16 @@
-import { useContext, createContext, useState, ReactNode } from "react";
+import {
+  useContext,
+  createContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth } from "../repositories/firebase-config";
 import UserController from "../controllers/userController";
 import { UserType } from "../Classes/Users";
@@ -9,7 +19,6 @@ interface User {
   // Define the shape of your user object here
   id: string;
   email: string | null;
-  uid: string;
   name: string;
   type: UserType;
 }
@@ -21,7 +30,6 @@ interface LoginData {
 }
 
 interface AuthContextProps {
-  token: string;
   user: User | null;
   loginAction: (data: any) => Promise<void>;
   registerAction: (data: any) => Promise<void>;
@@ -36,24 +44,44 @@ interface AuthProviderProps {
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string>(
-    localStorage.getItem("site") || ""
-  );
+  const [isInitialized, setIsInitialized] = useState(false);
+
   const navigate = useNavigate();
   const userController = new UserController();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (userData) => {
+      if (userData) {
+        const user = await userController.getSingleUser(userData.uid);
+        if (user !== null) {
+          setUser({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            type: user.type,
+          });
+          console.log("user", user);
+          navigate(user.type.toLowerCase());
+        }
+        setIsInitialized(true);
+        return;
+      } else {
+        setUser(null);
+        setIsInitialized(true);
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   const registerAction = async (data: LoginData) => {
     try {
       createUserWithEmailAndPassword(auth, data.email, data.password)
         .then(async (userCredential) => {
-          // Signed up
           const userData = userCredential.user;
-          console.log("userData", userData);
 
           setUser({
             id: userData.uid,
             email: userData.email,
-            uid: userData.uid,
             name: data.name,
             type: UserType.STUDENT,
           });
@@ -67,17 +95,12 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
           console.log("newUser", newUser);
 
-          setToken(userData.refreshToken);
-          localStorage.setItem("site", userData.refreshToken);
-          navigate("/student");
+          navigate(newUser.type.toLowerCase());
           return;
-
-          // ...
         })
         .catch((error) => {
-          const errorCode = error.code;
           const errorMessage = error.message;
-          // ..
+          console.log(errorMessage);
         });
     } catch (err) {
       console.error(err);
@@ -86,40 +109,27 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const loginAction = async (data: LoginData) => {
     try {
-      createUserWithEmailAndPassword(auth, data.email, data.password)
+      signInWithEmailAndPassword(auth, data.email, data.password)
         .then(async (userCredential) => {
-          // Signed up
           const userData = userCredential.user;
-          console.log("userData", userData);
+          const user = await userController.getSingleUser(userData.uid);
+          if (user !== null) {
+            setUser({
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              type: user.type,
+            });
+            console.log("Logged in User", user);
 
-          setUser({
-            id: userData.uid,
-            email: userData.email,
-            uid: userData.uid,
-            name: data.name,
-            type: UserType.STUDENT,
-          });
-
-          const newUser = await userController.addUser({
-            email: userData.email,
-            name: data.name,
-            type: UserType.STUDENT,
-            id: userData.uid,
-          });
-
-          console.log("newUser", newUser);
-
-          setToken(userData.refreshToken);
-          localStorage.setItem("site", userData.refreshToken);
-          navigate("/student");
-          return;
-
-          // ...
+            navigate(user.type.toLowerCase());
+            return;
+          }
+          throw new Error("User not found");
         })
         .catch((error) => {
-          const errorCode = error.code;
           const errorMessage = error.message;
-          // ..
+          console.log(errorMessage);
         });
     } catch (err) {
       console.error(err);
@@ -128,15 +138,15 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logOut = () => {
     setUser(null);
-    setToken("");
-    localStorage.removeItem("site");
     navigate("/login");
   };
 
+  if (isInitialized === false) {
+    return <>Loading...</>;
+  }
+
   return (
-    <AuthContext.Provider
-      value={{ token, user, loginAction, registerAction, logOut }}
-    >
+    <AuthContext.Provider value={{ user, loginAction, registerAction, logOut }}>
       {children}
     </AuthContext.Provider>
   );

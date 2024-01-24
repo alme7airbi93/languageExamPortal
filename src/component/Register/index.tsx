@@ -3,8 +3,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import styles from "../Login/login.module.scss";
 import { useAuth } from "../../hooks/AuthProvider";
-import { useNavigate } from "react-router-dom";
-import { UserType } from "../../Classes/Users";
+import { Link } from "react-router-dom";
 
 const Register: React.FC<RegisterProps> = () => {
   const [input, setInput] = useState({
@@ -13,34 +12,19 @@ const Register: React.FC<RegisterProps> = () => {
     name: "",
   });
 
-  const user = useAuth();
-  const navigation = useNavigate();
-
-  useEffect(() => {
-    if (user?.token) {
-      const redirect =
-        user?.user?.type === UserType.TEACHER ? "/teacher" : "/student";
-      navigation(redirect);
-    }
-  }, [user, navigation]);
-
   const auth = useAuth();
+
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("input", input);
-
     if (input.email !== "" && input.password !== "") {
       auth.registerAction(input);
       return;
     }
-
     alert("pleae provide a valid input");
   };
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log("input", input);
-
     setInput((prev) => ({
       ...prev,
       [name]: value,
@@ -51,7 +35,7 @@ const Register: React.FC<RegisterProps> = () => {
     <>
       <div className={`${styles.login_container}`}>
         <Form className="m-auto w-25">
-        <Form.Group className="mb-3" controlId="name">
+          <Form.Group className="mb-3" controlId="name">
             <Form.Label>Full Name</Form.Label>
             <Form.Control
               type="name"
@@ -84,10 +68,10 @@ const Register: React.FC<RegisterProps> = () => {
             </Button>
           </div>
           <Form.Text className="text-muted">
-            Don't have an account?{" "}
-            <a href="#" onClick={() => {}}>
-              Signup here
-            </a>
+            Already have an account?{" "}
+            <Link to={"/login"}>
+              Login here
+            </Link>
           </Form.Text>
         </Form>
       </div>

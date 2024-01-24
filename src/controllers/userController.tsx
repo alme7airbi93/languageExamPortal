@@ -34,6 +34,16 @@ class UserController {
     }
   }
 
+  async getSingleUser(userId: string): Promise<UserInterface | null> {
+    try {
+      const user = await this.userRepository.getUser(userId);
+      return user;
+    } catch (error) {
+      console.error('Error getting users: ', error);
+      return null;
+    }
+  }
+
   async updateUser(user: UserInterface): Promise<void> {
     try {
 

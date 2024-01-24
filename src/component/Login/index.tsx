@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import styles from "./login.module.scss";
 import { useAuth } from "../../hooks/AuthProvider";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { UserType } from "../../Classes/Users";
+import { Link } from "react-router-dom";
 
 const Login: React.FC<LoginProps> = () => {
   const [input, setInput] = useState({
@@ -14,24 +13,12 @@ const Login: React.FC<LoginProps> = () => {
   });
 
   const user = useAuth();
-  const navigation = useNavigate();
-  const [query] = useSearchParams();
 
-  useEffect(() => {
-    if (user?.token) {
-      const redirect =
-        user?.user?.type === UserType.TEACHER ? "/teacher" : "/student";
-      navigation(redirect);
-    }
-  }, [user, navigation]);
-
-  const auth = useAuth();
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("input", input);
 
     if (input.email !== "" && input.password !== "") {
-      auth.loginAction(input);
+      user.loginAction(input);
       return;
     }
 
@@ -78,9 +65,9 @@ const Login: React.FC<LoginProps> = () => {
           </div>
           <Form.Text className="text-muted">
             Don't have an account?{" "}
-            <a href="#" onClick={() => {}}>
-              Signup here
-            </a>
+            <Link to="/register">
+              Register here
+            </Link>
           </Form.Text>
         </Form>
       </div>
