@@ -86,13 +86,16 @@ const AddStudent: React.FC = () => {
         <Row className="">
           <Col xs={5} md={4} xl={3} className="p-0 m-0">
             <ExamList
-              page="student"
               selectExam={(exam: ExamInterface) => setSelectedExam(exam)}
               examEnrollments={examEnrollments}
             />
           </Col>
           <Col xs={7} md={8} xl={9} className="p-0 m-0">
-            {loading && <Loader />}
+            {loading && (
+              <div className="vh-100">
+                <Loader />
+              </div>
+            )}
             <ExamForm
               page="student"
               selectedExam={selectedExam}

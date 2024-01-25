@@ -85,3 +85,16 @@
   margin: 0 !important;
   border-bottom: 1px solid #f0f0f0 !important;
 }
+
+.add_icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  margin-top: 3px;
+}
+
+.edit_icon {
+  margin-left: -2px;
+}

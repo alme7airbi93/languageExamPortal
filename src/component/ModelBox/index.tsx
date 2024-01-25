@@ -1,62 +1,75 @@
-import React, { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
-import ExamController from '../../controllers/examController';
-import './modelbox.css'
-import { Exam, ExamInterface } from '../../Classes/Exams';
+import React, { useEffect, useState } from "react";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
+import Form from "react-bootstrap/Form";
+import ExamController from "../../controllers/examController";
+import "./modelbox.css";
+import { Exam, ExamInterface } from "../../Classes/Exams";
 
-const ModelBox: React.FC<ModelBoxProps>= ({mode , selectedExam,page}) => {
-  
-  const [show, setShow] = useState(false);
-  const [name, setName] = useState<string>(); 
-  const [examQuestion ,setExamQuestion] = useState<string>()
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+const ModelBox: React.FC<ModelBoxProps> = ({
+  mode,
+  selectedExam,
+  setSelectedExam,
+  show,
+  setShow,
+  setLoading,
+  fetchExams,
+}) => {
+  const [name, setName] = useState("");
+  const [examQuestion, setExamQuestion] = useState("");
+  const handleClose = () => {
+    setShow(false);
+    setName("");
+    setExamQuestion("");
+    setSelectedExam(undefined);
+  };
 
-  const examController = new ExamController()
+  const examController = new ExamController();
 
-  const saveExam: React.MouseEventHandler<HTMLButtonElement> = async (event)=>{
+  const saveExam: React.MouseEventHandler<HTMLButtonElement> = async (
+    event
+  ) => {
     event.preventDefault();
-    
-    const exam = new Exam(name!, examQuestion!)
-    if (mode ==='save' && exam && examQuestion) {
+
+    const exam = new Exam(name!, examQuestion!);
+    console.log("exam", exam);
+    console.log("!exam.name", !exam.name);
+    console.log("!exam.examQuestion", !exam.examQuestion);
+    if(!exam.name || !exam.examQuestion) return;
+    console.log("!exam.examQuestion", !exam.examQuestion);
+
+    setLoading(true);
+    if (mode === "save" && exam) {
+      handleClose();
       await examController.addExam(exam);
-       handleClose()
-    }else if(mode ==='edit' && selectedExam?.id){
-      exam.id = selectedExam.id
-        await examController.updateExam(exam);
-       handleClose()
+    } else if (mode === "edit" && selectedExam?.id) {
+      handleClose();
+      exam.id = selectedExam.id;
+      await examController.updateExam(exam);
     }
-  }
+    await fetchExams();
+    setLoading(false);
+  };
 
-
-    useEffect(()=>{
-    if (selectedExam && selectedExam?.name) {
-      setName(selectedExam?.name)
-      setExamQuestion(selectedExam?.examQuestion) 
+  useEffect(() => {
+    if (selectedExam) {
+      setName(selectedExam?.name);
+      setExamQuestion(selectedExam?.examQuestion);
     }
-    
-  },[selectedExam])
+  }, [selectedExam]);
 
-  const modelMode = ()=>{
-    if (mode === 'save') {
-      return "Create "
-    } else if(mode === 'edit') {
-       return "Edit "
+  const modelMode = () => {
+    if (mode === "save") {
+      return "Create ";
+    } else if (mode === "edit") {
+      return "Edit ";
     }
-  }
+  };
 
   return (
     <>
-      {(mode ==="edit" &&  selectedExam?.id) && page !== 'student'&& <Button variant="primary" onClick={handleShow}>
-        {modelMode()} Exam
-      </Button>}
-     {(mode ==="save") && <Button variant="primary" onClick={handleShow}>
-        {modelMode()} Exam
-      </Button>}
       <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
+        <Modal.Header className="text-capitalize">
           <Modal.Title>{modelMode()} Exam</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -67,7 +80,7 @@ const ModelBox: React.FC<ModelBoxProps>= ({mode , selectedExam,page}) => {
                 type="name"
                 placeholder="name"
                 autoFocus
-                onChange={(e)=>setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 value={name}
               />
             </Form.Group>
@@ -76,30 +89,43 @@ const ModelBox: React.FC<ModelBoxProps>= ({mode , selectedExam,page}) => {
               controlId="exampleForm.ControlTextarea1"
             >
               <Form.Label>Exam Question</Form.Label>
-              <Form.Control as="textarea" rows={3} onChange={(e)=> setExamQuestion(e.target.value)} 
-              value={examQuestion}/>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                onChange={(e) => setExamQuestion(e.target.value)}
+                value={examQuestion}
+              />
             </Form.Group>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="d-flex justify-content-start">
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={saveExam}>
-          {modelMode()} Exam
+          <Button
+            variant="primary"
+            onClick={saveExam}
+            className="text-capitalize"
+          >
+            {modelMode()} Exam
           </Button>
         </Modal.Footer>
       </Modal>
     </>
   );
-}
+};
 
+export default ModelBox;
 
-export default ModelBox
-
-
-interface ModelBoxProps{
-  mode : string;
-  page : string
-  selectedExam: ExamInterface | undefined
+interface ModelBoxProps {
+  mode: string;
+  page: string;
+  selectedExam: ExamInterface | undefined;
+  show: boolean;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedExam: React.Dispatch<
+    React.SetStateAction<ExamInterface | undefined>
+  >;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchExams: () => void;
 }

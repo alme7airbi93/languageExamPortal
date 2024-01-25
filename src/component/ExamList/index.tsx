@@ -14,48 +14,57 @@ import { useAuth } from "../../hooks/AuthProvider";
 import { UserType } from "../../Classes/Users";
 import Card from "react-bootstrap/Card";
 import { FaSearch } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa6";
+import { RiDeleteBin5Line } from "react-icons/ri";
+import { MdOutlineEdit } from "react-icons/md";
 import EnrollExamController from "../../controllers/exam-enroll-controllor";
 import { EnrollExamInterface } from "../../Classes/ExamEnroll";
 import Loader from "../Loader";
+import OverlayLoader from "../Loader/OverlayLoader";
 
 const ExamList: React.FC<ExamFormProps> = ({
-  page,
   selectExam,
   examEnrollments,
 }) => {
   const [exams, setExams] = useState<ExamInterface[]>([]);
   const [examsLoading, setExamsLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [mode, setMode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [selectedExam, setSelectedExam] = useState<ExamInterface>();
   const [filteredExams, setFilteredExams] = useState<ExamInterface[]>([]);
   const examController = new ExamController();
   const enrollExamController = new EnrollExamController();
   const { user } = useAuth();
 
+  const fetchExams = async () => {
+    const allExams = await examController.getExams();
+    if (user) {
+      setExams([]);
+      setFilteredExams([]);
+      const enrollments =
+        await enrollExamController.fetchSelectedExamEnrollments(
+          user.id,
+          "studentID"
+        );
+      const enrolledExamIds = enrollments.map(
+        (enrollment) => enrollment.examID
+      );
+      const notEnrolledExams = allExams.filter(
+        (exam) => !enrolledExamIds.includes(exam.id)
+      );
+      console.log("notEnrolledExams", notEnrolledExams);
+
+      setExams(notEnrolledExams);
+      setFilteredExams(notEnrolledExams);
+    } else {
+      setExams(allExams);
+      setFilteredExams(allExams);
+    }
+    setExamsLoading(false);
+  };
+
   useEffect(() => {
-    const fetchExams = async () => {
-      const allExams = await examController.getExams();
-      if (user) {
-        const enrollments =
-          await enrollExamController.fetchSelectedExamEnrollments(
-            user.id,
-            "studentID"
-          );
-        const enrolledExamIds = enrollments.map(
-          (enrollment) => enrollment.examID
-        );
-        const notEnrolledExams = allExams.filter(
-          (exam) => !enrolledExamIds.includes(exam.id)
-        );
-        console.log("notEnrolledExams", notEnrolledExams);
-
-        setExams(notEnrolledExams);
-        setFilteredExams(notEnrolledExams);
-      } else {
-        setExams(allExams);
-        setFilteredExams(allExams);
-      }
-      setExamsLoading(false);
-    };
-
     fetchExams();
   }, [examEnrollments]);
 
@@ -68,26 +77,43 @@ const ExamList: React.FC<ExamFormProps> = ({
   };
 
   const deleteExam = async (examID: string, index: number) => {
+    setLoading(true);
     await examController.deleteExam(examID);
     const examCopy = JSON.parse(JSON.stringify(filteredExams));
     examCopy.splice(index, 1);
     setFilteredExams(examCopy);
+    setLoading(false);
   };
+
+  const handleModal = (mode: string) => {
+    setShowModal(true);
+    setMode(mode);
+  };
+
   return (
     <div className="">
-      {/* <h1>Exam List</h1>
-      <input
-        type="text"
-        placeholder="Search Exam"
-        // onChange={(e) => searchExam(e)}
-      />
-
-      {page === "teacher" && (
-        <ModelBox mode="save" page="teacher" selectedExam={undefined} />
-      )} */}
-
+      {user?.type === UserType.TEACHER && (
+        <ModelBox
+          mode={mode}
+          page="teacher"
+          show={showModal}
+          setShow={setShowModal}
+          selectedExam={selectedExam}
+          setSelectedExam={setSelectedExam}
+          setLoading={setLoading}
+          fetchExams={fetchExams}
+        />
+      )}
       <Card className={styles.Card}>
-        <Card.Header className={styles.exam_header}>Exams</Card.Header>
+        {loading && <OverlayLoader />}
+        <Card.Header className={`position-relative ${styles.exam_header}`}>
+          Exams
+          <FaPlus
+            className={styles.add_icon}
+            size="24"
+            onClick={() => handleModal("save")}
+          />
+        </Card.Header>
         <InputGroup className="">
           <FormControl
             placeholder="Search exams"
@@ -97,14 +123,16 @@ const ExamList: React.FC<ExamFormProps> = ({
             className={styles.search_input}
           />
           <InputGroup.Text id="basic-addon2" className={styles.search_icon}>
-            <FaSearch />
+            <FaSearch className="ml-1" />
           </InputGroup.Text>
         </InputGroup>
         {examsLoading ? (
-          <Loader />
+          <div className="p-4">
+            <Loader />
+          </div>
         ) : filteredExams.length ? (
           <ListGroup className={styles.list_group}>
-            {filteredExams.map((exam) => (
+            {filteredExams.map((exam, index) => (
               <ListGroup.Item
                 className={styles.list_item}
                 key={exam.id}
@@ -115,40 +143,34 @@ const ExamList: React.FC<ExamFormProps> = ({
                 {user?.type === UserType.STUDENT && (
                   <div onClick={() => selectExam(exam)}>Join Exam</div>
                 )}
+                <div>
+                  {user?.type === UserType.TEACHER && (
+                    <ModelDel
+                      deleteExam={deleteExam}
+                      examID={exam.id}
+                      index={index}
+                    />
+                  )}
+                  {user?.type === UserType.TEACHER && (
+                    <MdOutlineEdit
+                      onClick={() => {
+                        handleModal("edit");
+                        setSelectedExam(exam);
+                      }}
+                      size="24"
+                      className={styles.edit_icon}
+                    />
+                  )}
+                </div>
               </ListGroup.Item>
             ))}
           </ListGroup>
         ) : (
-          <div
-            className={`${styles.list_item} ${styles.list_empty_item}`}
-          >
+          <div className={`${styles.list_item} ${styles.list_empty_item}`}>
             <h5 className={styles.exam_name}>No Exams Available </h5>
           </div>
         )}
       </Card>
-
-      {/* <section>
-        {filteredExams.map((exam, index) => (
-          <section className="exam__info" key={exam.id}>
-            <h1 className="exam__name" onClick={() => selectExam(exam)}>
-              {exam.name}
-            </h1>
-            {user?.type === UserType.TEACHER && (
-              <ModelDel
-                deleteExam={deleteExam}
-                examID={exam.id}
-                index={index}
-              />
-            )}
-
-            {user?.type === UserType.STUDENT && (
-              <Button variant="warning" onClick={() => selectExam(exam)}>
-                Join Exam
-              </Button>
-            )}
-          </section>
-        ))}
-      </section> */}
     </div>
   );
 };
@@ -156,7 +178,6 @@ const ExamList: React.FC<ExamFormProps> = ({
 export default ExamList;
 
 interface ExamFormProps {
-  page: string;
   selectExam: (exam: ExamInterface) => void;
   examEnrollments: EnrollExamInterface | undefined;
 }
@@ -169,27 +190,20 @@ const ModelDel: React.FC<ModelBoxProps> = ({ deleteExam, examID, index }) => {
 
   return (
     <>
-      <Button variant="danger" onClick={handleShow}>
-        Delete Exam
-      </Button>
-
-      <Modal
-        show={show}
-        onHide={handleClose}
-        backdrop="static"
-        keyboard={false}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Delete Model</Modal.Title>
+      <RiDeleteBin5Line size="24" className="ml-4" onClick={handleShow} />
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header className="text-capitalize">
+          <Modal.Title>Delete Exam</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Are you sure you want to delete this model</Modal.Body>
-        <Modal.Footer>
+        <Modal.Body>Are you sure you want to delete this exam</Modal.Body>
+        <Modal.Footer className="d-flex justify-content-start">
           <Button variant="secondary" onClick={handleClose}>
             No
           </Button>
           <Button
             variant="danger"
             onClick={() => {
+              handleClose();
               deleteExam(examID, index);
             }}
           >

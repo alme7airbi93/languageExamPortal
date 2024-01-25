@@ -61,6 +61,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             name: user.name,
             type: user.type,
           });
+          console.log("user", user);
           navigate(user.type.toLowerCase());
         }
         setIsInitialized(true);
@@ -142,7 +143,11 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   if (isInitialized === false) {
-    return <Loader />;
+    return (
+      <div className="vh-100">
+        <Loader />
+      </div>
+    );
   }
 
   return (

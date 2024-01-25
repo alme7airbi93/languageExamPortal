@@ -2,7 +2,7 @@ import Spinner from 'react-bootstrap/Spinner';
 
 function Loader() {
   return (
-    <div className="d-flex justify-content-center align-items-center" style={{height: "100vh"}}>
+    <div className="d-flex justify-content-center align-items-center h-100">
       <Spinner animation="border" role="status">
         <span className="visually-hidden">Loading...</span>
       </Spinner>
