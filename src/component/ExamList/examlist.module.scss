@@ -23,6 +23,11 @@
   border-bottom: 1px solid #f0f0f0 !important;
 }
 
+.list_empty_item {
+  justify-content: center;
+  text-transform: capitalize !important;
+}
+
 .list_group {
   border: none !important;
   overflow: auto;

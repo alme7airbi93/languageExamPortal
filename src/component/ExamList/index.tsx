@@ -16,32 +16,47 @@ import Card from "react-bootstrap/Card";
 import { FaSearch } from "react-icons/fa";
 import EnrollExamController from "../../controllers/exam-enroll-controllor";
 import { EnrollExamInterface } from "../../Classes/ExamEnroll";
+import Loader from "../Loader";
 
-const ExamList: React.FC<ExamFormProps> = ({ page, selectExam, examEnrollments }) => {
+const ExamList: React.FC<ExamFormProps> = ({
+  page,
+  selectExam,
+  examEnrollments,
+}) => {
   const [exams, setExams] = useState<ExamInterface[]>([]);
+  const [examsLoading, setExamsLoading] = useState(true);
   const [filteredExams, setFilteredExams] = useState<ExamInterface[]>([]);
   const examController = new ExamController();
   const enrollExamController = new EnrollExamController();
   const { user } = useAuth();
 
   useEffect(() => {
-      const fetchExams = async () => {
-        const allExams = await examController.getExams();
-        if(user) {
-        const enrollments = await enrollExamController.fetchSelectedExamEnrollments(user.id, "studentID");
-        const enrolledExamIds = enrollments.map(enrollment => enrollment.examID);
-        const notEnrolledExams = allExams.filter(exam => !enrolledExamIds.includes(exam.id));
+    const fetchExams = async () => {
+      const allExams = await examController.getExams();
+      if (user) {
+        const enrollments =
+          await enrollExamController.fetchSelectedExamEnrollments(
+            user.id,
+            "studentID"
+          );
+        const enrolledExamIds = enrollments.map(
+          (enrollment) => enrollment.examID
+        );
+        const notEnrolledExams = allExams.filter(
+          (exam) => !enrolledExamIds.includes(exam.id)
+        );
         console.log("notEnrolledExams", notEnrolledExams);
-  
+
         setExams(notEnrolledExams);
         setFilteredExams(notEnrolledExams);
       } else {
         setExams(allExams);
         setFilteredExams(allExams);
       }
+      setExamsLoading(false);
     };
-  
-      fetchExams();
+
+    fetchExams();
   }, [examEnrollments]);
 
   const searchExam = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,23 +100,31 @@ const ExamList: React.FC<ExamFormProps> = ({ page, selectExam, examEnrollments }
             <FaSearch />
           </InputGroup.Text>
         </InputGroup>
-        <ListGroup className={styles.list_group}>
-          {filteredExams.map((exam) => (
-            <ListGroup.Item
-              className={styles.list_item}
-              key={exam.id}
-              action
-              onClick={() => selectExam(exam)}
-            >
-              <h5 className={styles.exam_name}>{exam.name} </h5>
-              {user?.type === UserType.STUDENT && (
-                <div onClick={() => selectExam(exam)}>
-                  Join Exam
-                </div>
-              )}
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
+        {examsLoading ? (
+          <Loader />
+        ) : filteredExams.length ? (
+          <ListGroup className={styles.list_group}>
+            {filteredExams.map((exam) => (
+              <ListGroup.Item
+                className={styles.list_item}
+                key={exam.id}
+                action
+                onClick={() => selectExam(exam)}
+              >
+                <h5 className={styles.exam_name}>{exam.name} </h5>
+                {user?.type === UserType.STUDENT && (
+                  <div onClick={() => selectExam(exam)}>Join Exam</div>
+                )}
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        ) : (
+          <div
+            className={`${styles.list_item} ${styles.list_empty_item}`}
+          >
+            <h5 className={styles.exam_name}>No Exams Available </h5>
+          </div>
+        )}
       </Card>
 
       {/* <section>
