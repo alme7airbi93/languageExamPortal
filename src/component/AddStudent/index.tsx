@@ -86,7 +86,11 @@ const AddStudent: React.FC = () => {
         <Row className="">
           <Col xs={5} md={4} xl={3} className="p-0 m-0">
             <ExamList
-              selectExam={(exam: ExamInterface) => setSelectedExam(exam)}
+              selectExam={(exam: ExamInterface) => {
+                if(selectedExam?.id === exam.id) return
+                setSelectedExam(exam)
+                setAnswer('')
+              }}
               examEnrollments={examEnrollments}
             />
           </Col>
@@ -97,11 +101,9 @@ const AddStudent: React.FC = () => {
               </div>
             )}
             <ExamForm
-              page="student"
               selectedExam={selectedExam}
               saveAnswer={saveAnswer}
               clearData={clearData}
-              examEnrollments={examEnrollments}
               answer={answer}
               setAnswer={setAnswer}
             />

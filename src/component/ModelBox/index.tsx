@@ -119,7 +119,6 @@ export default ModelBox;
 
 interface ModelBoxProps {
   mode: string;
-  page: string;
   selectedExam: ExamInterface | undefined;
   show: boolean;
   setShow: React.Dispatch<React.SetStateAction<boolean>>;

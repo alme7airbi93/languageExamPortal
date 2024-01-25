@@ -7,6 +7,7 @@ import ExamForm from '../ExamForm';
 import ExamList from '../ExamList';
 import "./teacher.css"
 import { Container, Row, Col, Button, Modal } from "react-bootstrap";
+import CheckExam from '../CheckExam/checkExam';
 
 const TeacherScreen: React.FC = () => {
   const [examEnrollments, setExamEnrollments] = useState<EnrollExamInterface>();
@@ -20,8 +21,8 @@ const TeacherScreen: React.FC = () => {
 };
 
   return (
-      <div className='teacher__container'>
-        <Container>
+    <div className="teacher__container">
+      <Container>
         <Row className="">
           <Col xs={5} md={4} xl={3} className="p-0 m-0">
             <ExamList
@@ -30,7 +31,11 @@ const TeacherScreen: React.FC = () => {
             />
           </Col>
           <Col xs={7} md={8} xl={9} className="p-0 m-0">
-           {/*  {loading && <Loader />}
+            <CheckExam
+              selectedExam={selectedExam}
+              examEnrollments={examEnrollments}
+            />
+            {/*  {loading && <Loader />}
             <ExamForm
               page="student"
               selectedExam={selectedExam}
@@ -53,10 +58,10 @@ const TeacherScreen: React.FC = () => {
                 </Button>
               </Modal.Footer>
             </Modal>*/}
-          </Col> 
+          </Col>
         </Row>
       </Container>
-      </div>
+    </div>
   );
 };
 

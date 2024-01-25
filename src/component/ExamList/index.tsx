@@ -95,7 +95,6 @@ const ExamList: React.FC<ExamFormProps> = ({
       {user?.type === UserType.TEACHER && (
         <ModelBox
           mode={mode}
-          page="teacher"
           show={showModal}
           setShow={setShowModal}
           selectedExam={selectedExam}
