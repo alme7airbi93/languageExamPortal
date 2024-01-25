@@ -85,9 +85,9 @@ class EnrollExamRepository {
     }
   }
 
-async getSelectedExamEnrollment(examID: string): Promise<ExamEnrollment[]> {
+async getSelectedExamEnrollment(id: string, matchKey: string = "examID"): Promise<ExamEnrollment[]> {
   try {
-    const q = query(collection(this.db, 'enrollments'), where('examID', '==', examID));
+    const q = query(collection(this.db, 'enrollments'), where(matchKey, '==', id));
     const querySnapshot = await getDocs(q);
 
     const enrollments: ExamEnrollment[] = [];

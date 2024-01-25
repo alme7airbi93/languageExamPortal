@@ -61,7 +61,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             name: user.name,
             type: user.type,
           });
-          console.log("user", user);
           navigate(user.type.toLowerCase());
         }
         setIsInitialized(true);

@@ -1,74 +1,85 @@
-.exam__form{
-  border: 2px solid black;
+.exam__form {
   padding: 6px;
+  height: 100vh;
+  background-color: #f0f0f0;
 }
 
-.exam__question{
+.exam__question {
+  min-height: 100px;
+  margin: 10px;
+  padding: 0 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  
+}
+
+.exam__answer {
   border: 2px solid black;
   min-height: 100px;
   margin: 10px;
   padding: 0 5px;
 }
 
-.exam__answer{
-  border: 2px solid black;
-  min-height: 100px;
-  margin: 10px;
-  padding: 0 5px;
-}
 .exam__answer textarea {
   margin: 4px;
   width: 50vw;
 }
 
 
-.button{
+.button {
   margin-top: 5px;
   height: 50px;
   align-items: center;
 }
 
-.save-btn{
+.save_btn {
   margin: 7px;
   display: flex;
   justify-content: end;
 }
 
-.flex{
+.flex {
   display: flex;
 }
 
-.exam__extrollment_list{
+.exam__extrollment_list {
   margin: 2px;
   padding: 5px;
   border: 2px solid black;
   width: 50vw;
 }
 
-.show-frame{
+.show_frame {
   display: block;
 }
-.hide-frame{
+
+.hide_frame {
   display: none;
 }
 
-.exam__extrollment{
+.exam__extrollment {
   border: 2px solid black;
   margin: 5px;
   padding: 5px;
 }
 
-.exam__critaria{
+.exam__critaria {
   width: 50vw;
   border: 2px solid black;
   min-height: 100px;
   margin: 10px;
 
 }
-.exam__bar-chart{
+
+.exam__bar_chart {
   width: 50vw;
   border: 2px solid black;
   min-height: 100px;
   margin: 10px;
 
+}
+
+.select_exam {
+  color: #656d76 !important;
 }

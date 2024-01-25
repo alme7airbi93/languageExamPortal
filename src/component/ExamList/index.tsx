@@ -14,26 +14,35 @@ import { useAuth } from "../../hooks/AuthProvider";
 import { UserType } from "../../Classes/Users";
 import Card from "react-bootstrap/Card";
 import { FaSearch } from "react-icons/fa";
+import EnrollExamController from "../../controllers/exam-enroll-controllor";
+import { EnrollExamInterface } from "../../Classes/ExamEnroll";
 
-const ExamList: React.FC<ExamFormProps> = ({ page, selectExam }) => {
+const ExamList: React.FC<ExamFormProps> = ({ page, selectExam, examEnrollments }) => {
   const [exams, setExams] = useState<ExamInterface[]>([]);
   const [filteredExams, setFilteredExams] = useState<ExamInterface[]>([]);
   const examController = new ExamController();
-
+  const enrollExamController = new EnrollExamController();
   const { user } = useAuth();
-  console.log("user", user);
 
   useEffect(() => {
-    examController
-      .getExams()
-      .then((result) => {
-        setExams(result);
-        setFilteredExams(result);
-      })
-      .catch((error) => {
-        console.error("Async operation failed:", error);
-      });
-  }, []);
+      const fetchExams = async () => {
+        const allExams = await examController.getExams();
+        if(user) {
+        const enrollments = await enrollExamController.fetchSelectedExamEnrollments(user.id, "studentID");
+        const enrolledExamIds = enrollments.map(enrollment => enrollment.examID);
+        const notEnrolledExams = allExams.filter(exam => !enrolledExamIds.includes(exam.id));
+        console.log("notEnrolledExams", notEnrolledExams);
+  
+        setExams(notEnrolledExams);
+        setFilteredExams(notEnrolledExams);
+      } else {
+        setExams(allExams);
+        setFilteredExams(allExams);
+      }
+    };
+  
+      fetchExams();
+  }, [examEnrollments]);
 
   const searchExam = (event: React.ChangeEvent<HTMLInputElement>) => {
     let searchPhrase = event.target.value.toLowerCase();
@@ -64,7 +73,7 @@ const ExamList: React.FC<ExamFormProps> = ({ page, selectExam }) => {
 
       <Card className={styles.Card}>
         <Card.Header className={styles.exam_header}>Exams</Card.Header>
-        <InputGroup className="mb-3">
+        <InputGroup className="">
           <FormControl
             placeholder="Search exams"
             aria-label="Search exams"
@@ -72,7 +81,7 @@ const ExamList: React.FC<ExamFormProps> = ({ page, selectExam }) => {
             onChange={searchExam}
             className={styles.search_input}
           />
-          <InputGroup.Text id="basic-addon2">
+          <InputGroup.Text id="basic-addon2" className={styles.search_icon}>
             <FaSearch />
           </InputGroup.Text>
         </InputGroup>
@@ -84,7 +93,12 @@ const ExamList: React.FC<ExamFormProps> = ({ page, selectExam }) => {
               action
               onClick={() => selectExam(exam)}
             >
-              <h5 className={styles.exam_name}>{exam.name}</h5>
+              <h5 className={styles.exam_name}>{exam.name} </h5>
+              {user?.type === UserType.STUDENT && (
+                <div onClick={() => selectExam(exam)}>
+                  Join Exam
+                </div>
+              )}
             </ListGroup.Item>
           ))}
         </ListGroup>
@@ -121,6 +135,7 @@ export default ExamList;
 interface ExamFormProps {
   page: string;
   selectExam: (exam: ExamInterface) => void;
+  examEnrollments: EnrollExamInterface | undefined;
 }
 
 const ModelDel: React.FC<ModelBoxProps> = ({ deleteExam, examID, index }) => {
