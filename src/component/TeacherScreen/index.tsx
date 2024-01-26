@@ -22,8 +22,7 @@ const TeacherScreen: React.FC = () => {
 
   return (
     <div className="teacher__container">
-      <Container>
-        <Row className="">
+        <Row className="m-0">
           <Col xs={5} md={4} xl={3} className="p-0 m-0">
             <ExamList
               selectExam={(exam: ExamInterface) => setSelectedExam(exam)}
@@ -35,32 +34,8 @@ const TeacherScreen: React.FC = () => {
               selectedExam={selectedExam}
               examEnrollments={examEnrollments}
             />
-            {/*  {loading && <Loader />}
-            <ExamForm
-              page="student"
-              selectedExam={selectedExam}
-              saveAnswer={saveAnswer}
-              clearData={clearData}
-              examEnrollments={examEnrollments}
-              answer={answer}
-              setAnswer={setAnswer}
-            />
-            <Modal show={show} onHide={handleClose}>
-              <Modal.Header closeButton dir="ltr">
-                <Modal.Title>Exam Submission</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                Your answer is submitted. Select the next exam from exam list
-              </Modal.Body>
-              <Modal.Footer className="d-flex justify-content-start">
-                <Button variant="secondary" onClick={handleClose}>
-                  Close
-                </Button>
-              </Modal.Footer>
-            </Modal>*/}
           </Col>
         </Row>
-      </Container>
     </div>
   );
 };

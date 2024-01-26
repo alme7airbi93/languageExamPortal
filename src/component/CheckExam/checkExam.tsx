@@ -8,6 +8,8 @@ import UserController from "../../controllers/userController";
 import { useAuth } from "../../hooks/AuthProvider";
 import { UserType } from "../../Classes/Users";
 import "../AddStudent/style.css";
+import { Col, Row, ListGroup, Tabs, Tab, Button } from "react-bootstrap";
+import styles2 from "../ExamList/examlist.module.scss";
 
 const CheckExam: React.FC<CheckExamProps> = ({
   selectedExam,
@@ -17,6 +19,9 @@ const CheckExam: React.FC<CheckExamProps> = ({
   const [selectedEnrollment, setSelectedEnrollment] =
     useState<EnrollExamInterface>();
   const [studentScore, setStudentScore] = useState<StudentScoreType>();
+  const [showAiResponses, setShowAiResponses] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState("");
+
   const { user: authUser } = useAuth();
 
   const enrollExamController = new EnrollExamController();
@@ -30,15 +35,25 @@ const CheckExam: React.FC<CheckExamProps> = ({
         await enrollExamController.fetchSelectedExamEnrollments(
           selectedExam?.id
         );
-      const users = await user.getUsers();
-      const dictionary = new Map(
-        enrollments.map((item) => [item.studentID, item])
+      const studentIDs = enrollments.map((item) => item.studentID);
+      const users = await user.getUsersByStudentIDs(studentIDs);
+      console.log("usersList", users);
+      const enrollmentMap = new Map(
+        enrollments.map((enrollment) => {
+          const user = users.find((user) => user.id === enrollment.studentID);
+          return [enrollment.studentID, { enrollment, user }];
+        })
       );
-      const joinedArray = users.map((item) => ({
-        ...item,
-        ...dictionary.get(item.id),
-      }));
+      console.log("enrollmentMap", enrollmentMap);
+      const joinedArray = Array.from(enrollmentMap);
+      console.log("joinedArray", joinedArray);
       setEnrollments(joinedArray);
+
+      Array.from(enrollmentMap).map(([studentID, { enrollment, user }]) => {
+        console.log("studentID", studentID);
+        console.log("enrollment", enrollment);
+        console.log("user", user);
+      });
     }
   };
 
@@ -59,9 +74,9 @@ const CheckExam: React.FC<CheckExamProps> = ({
     <div className={styles.exam__form}>
       {selectedExam ? (
         <>
-          <div className="container mt-5 exam_form">
-            <div className="d-flex justify-content-center row">
-              <div className="col-md-10 col-lg-10">
+          <div className="mt-5 exam_form">
+            <div className="d-flex justify-content-center row m-0">
+              <div className="col-md-12 col-lg-12">
                 <form onSubmit={() => {}}>
                   <div className="border">
                     <div className="question bg-white p-3 border-bottom">
@@ -87,79 +102,128 @@ const CheckExam: React.FC<CheckExamProps> = ({
                         ></textarea>
                       </div> */}
                     </div>
-                    <div className="question bg-white p-3 border-bottom">
-                      <div
-                        className={`${
-                          authUser?.type === UserType.STUDENT
-                            ? styles.hide_frame
-                            : styles.exam__extrollment_list
-                        }`}
-                      >
-                        {enrollments?.map((item) => {
-                          return (
-                            <div
-                              key={item.id}
-                              onClick={() => setSelectedEnrollment(item)}
-                              className={styles.exam__extrollment}
+                    <section className="section bg-white p-3 border-bottom">
+                      <Row className="vh-50">
+                        <Col
+                          xs={5}
+                          md={5}
+                          xl={5}
+                          className={`${styles.exam__extrollment_list} border border-left border-right vh-50 mt-10`}
+                        >
+                          <ListGroup
+                            className={`pr-1 ${styles2.list_group} h-100`}
+                          >
+                            <h5
+                              className={`text-center fw-bold mb-3 text-capitalize`}
                             >
-                              <div>{item.name}</div>
-                              <div>{item.email}</div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <h1
-                        className={`${
-                          authUser?.type === UserType.STUDENT &&
-                          styles.show_frame
-                        }`}
-                      >
-                        {" "}
-                        {examEnrollments?.studentScore}
-                      </h1>
-                      <Dropdown>
-                        <Dropdown.Toggle variant="success" id="dropdown-basic">
-                          Add Score
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                          <Dropdown.Item
-                            onClick={() =>
-                              setStudentScore(StudentScoreType.POOR)
-                            }
+                              Students Enrolled
+                            </h5>
+                            {enrollments?.map(
+                              ([studentID, { enrollment, user }]) => {
+                                return (
+                                  <>
+                                    <ListGroup.Item
+                                      className={`${styles2.list_item} flex-column`}
+                                      key={studentID}
+                                      // onClick={() => setSelectedEnrollment(item)}
+                                      onClick={() => {
+                                        setSelectedAnswer(
+                                          enrollment?.studentAnswer
+                                        );
+                                      }}
+                                    >
+                                      <h5 className={`${styles2.exam_name}`}>
+                                        {user.name}{" "}
+                                      </h5>
+                                      <div className={"text-break"}>
+                                        {user.email}
+                                      </div>
+                                    </ListGroup.Item>
+                                  </>
+                                );
+                              }
+                            )}
+                          </ListGroup>
+                        </Col>
+                        <Col
+                          className={`${
+                            authUser?.type === UserType.STUDENT &&
+                            styles.show_frame
+                          }`}
+                          xs={7}
+                          md={7}
+                          xl={7}
+                        >
+                          <div className="d-flex gap-4 mb-3">
+                          <Dropdown>
+                            <Dropdown.Toggle
+                              variant="success"
+                              id="dropdown-basic"
+                            >
+                              Add Score
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu>
+                              <Dropdown.Item
+                                onClick={() =>
+                                  setStudentScore(StudentScoreType.POOR)
+                                }
+                              >
+                                {StudentScoreType.POOR}
+                              </Dropdown.Item>
+                              <Dropdown.Item
+                                onClick={() =>
+                                  setStudentScore(StudentScoreType.GOOD)
+                                }
+                              >
+                                {StudentScoreType.GOOD}
+                              </Dropdown.Item>
+                              <Dropdown.Item
+                                onClick={() =>
+                                  setStudentScore(StudentScoreType.VERY_GOOD)
+                                }
+                              >
+                                {StudentScoreType.VERY_GOOD}
+                              </Dropdown.Item>
+                              <Dropdown.Item
+                                onClick={() =>
+                                  setStudentScore(StudentScoreType.EXCELLENT)
+                                }
+                              >
+                                {StudentScoreType.EXCELLENT}
+                              </Dropdown.Item>
+                            </Dropdown.Menu>
+                          </Dropdown>
+                          <Button onClick={() => setShowAiResponses(!showAiResponses)}>Ask AI</Button>
+                          {" "}
+                          {examEnrollments?.studentScore}
+                          </div>
+
+                          <Tabs
+                            defaultActiveKey="answer"
+                            transition={false}
+                            id="noanim-tab-example"
+                            className="mb-3"
                           >
-                            {StudentScoreType.POOR}
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            onClick={() =>
-                              setStudentScore(StudentScoreType.GOOD)
-                            }
-                          >
-                            {StudentScoreType.GOOD}
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            onClick={() =>
-                              setStudentScore(StudentScoreType.VERY_GOOD)
-                            }
-                          >
-                            {StudentScoreType.VERY_GOOD}
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            onClick={() =>
-                              setStudentScore(StudentScoreType.EXCELLENT)
-                            }
-                          >
-                            {StudentScoreType.EXCELLENT}
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </div>
+                            <Tab eventKey="answer" title="Answer">
+                              {selectedAnswer}
+                            </Tab>
+                            {showAiResponses && (
+                              <Tab eventKey="profile" title="Profile">
+                                Tab content for Profile
+                              </Tab>
+                            )}
+                          </Tabs>
+                          
+                        </Col>
+                      </Row>
+                    </section>
 
                     <div className="d-flex flex-row justify-content-center align-items-center p-3 bg-white">
                       <button
                         className="btn btn-primary border-success align-items-center btn-success"
                         type="submit"
                       >
-                        Submit Answer
+                        Submit Score
                       </button>
                     </div>
                   </div>

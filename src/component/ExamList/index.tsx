@@ -113,7 +113,7 @@ const ExamList: React.FC<ExamFormProps> = ({
             onClick={() => handleModal("save")}
           />
         </Card.Header>
-        <InputGroup className="">
+        <InputGroup className="pr-1">
           <FormControl
             placeholder="Search exams"
             aria-label="Search exams"
@@ -130,7 +130,7 @@ const ExamList: React.FC<ExamFormProps> = ({
             <Loader />
           </div>
         ) : filteredExams.length ? (
-          <ListGroup className={styles.list_group}>
+          <ListGroup className={`pr-1 ${styles.list_group}`}>
             {filteredExams.map((exam, index) => (
               <ListGroup.Item
                 className={styles.list_item}

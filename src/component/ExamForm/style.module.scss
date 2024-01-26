@@ -29,7 +29,7 @@
 
 .button {
   margin-top: 5px;
-  height: 50px;
+  min-height: 50px;
   align-items: center;
 }
 
@@ -44,10 +44,8 @@
 }
 
 .exam__extrollment_list {
-  margin: 2px;
+  // margin-top: 41px !important;
   padding: 5px;
-  border: 2px solid black;
-  width: 50vw;
 }
 
 .show_frame {
@@ -59,8 +57,8 @@
 }
 
 .exam__extrollment {
-  border: 2px solid black;
-  margin: 5px;
+  // border: 2px solid black;
+  // margin: 5px;
   padding: 5px;
 }
 

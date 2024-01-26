@@ -1,4 +1,4 @@
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, DocumentReference, DocumentData, getDoc, query, where } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc, DocumentReference, DocumentData, getDoc, query, where, documentId, FieldPath } from 'firebase/firestore';
 // import { User,UserInterface } from '../classes/Users';
 import { User,UserInterface } from '../Classes/Users';
 import { database , app} from './firebase-config';
@@ -61,6 +61,38 @@ class UserRepository {
        throw error; 
     }
   }
+
+  async getUsersByStudentIDs(studentIDs: string[]): Promise<UserInterface[]> {
+    try {
+      console.log("studentIDs", studentIDs);
+      
+   const snapshot = await getDocs(
+     query(
+       collection(this.db, "users"),
+       where(
+         documentId(),
+         "in",
+         studentIDs.map((userId) => doc(this.db, "users", userId))
+       )
+     )
+   );
+
+   return snapshot.docs.map((doc) => {
+     const data = doc.data();
+     return {
+       id: doc.id,
+       email: data.email,
+       name: data.name,
+       type: data.type,
+     } as UserInterface;
+   });
+ }
+   catch (error) {
+     console.error('Error getting users: ', error);
+      throw error; 
+   }
+ }
+
 
   async getUser(uid: string): Promise<UserInterface | null> {
     try {

@@ -34,6 +34,16 @@ class UserController {
     }
   }
 
+  async getUsersByStudentIDs(userIds: string[]): Promise<UserInterface[]> {
+    try {
+      const users = await this.userRepository.getUsersByStudentIDs(userIds);
+      return users;
+    } catch (error) {
+      console.error('Error getting users: ', error);
+      return [];
+    }
+  }
+
   async getSingleUser(userId: string): Promise<UserInterface | null> {
     try {
       const user = await this.userRepository.getUser(userId);
