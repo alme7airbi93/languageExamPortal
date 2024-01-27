@@ -8,8 +8,9 @@ import UserController from "../../controllers/userController";
 import { useAuth } from "../../hooks/AuthProvider";
 import { UserType } from "../../Classes/Users";
 import "../AddStudent/style.css";
-import { Col, Row, ListGroup, Tabs, Tab, Button } from "react-bootstrap";
+import { Col, Row, ListGroup, Tabs, Tab, Button, Modal } from "react-bootstrap";
 import styles2 from "../ExamList/examlist.module.scss";
+import openai from "../../api/openai";
 
 const CheckExam: React.FC<CheckExamProps> = ({
   selectedExam,
@@ -21,11 +22,24 @@ const CheckExam: React.FC<CheckExamProps> = ({
   const [studentScore, setStudentScore] = useState<StudentScoreType>();
   const [showAiResponses, setShowAiResponses] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState("");
+  const [show, setShow] = useState(false);
+  const [input, setInput] = useState("");
+  const [response, setResponse] = useState("");
+  const [messages, setMessages] = useState<MessageInterface[]>([
+    {
+      role: "assistant",
+      content: "You are a helpful assistant designed to output JSON.",
+    },
+  ]);
+
 
   const { user: authUser } = useAuth();
 
   const enrollExamController = new EnrollExamController();
   const user = new UserController();
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   const getEnrollments = async () => {
     if (selectedExam?.id) {
@@ -37,25 +51,42 @@ const CheckExam: React.FC<CheckExamProps> = ({
         );
       const studentIDs = enrollments.map((item) => item.studentID);
       const users = await user.getUsersByStudentIDs(studentIDs);
-      console.log("usersList", users);
       const enrollmentMap = new Map(
         enrollments.map((enrollment) => {
           const user = users.find((user) => user.id === enrollment.studentID);
           return [enrollment.studentID, { enrollment, user }];
         })
       );
-      console.log("enrollmentMap", enrollmentMap);
-      const joinedArray = Array.from(enrollmentMap);
-      console.log("joinedArray", joinedArray);
-      setEnrollments(joinedArray);
 
-      Array.from(enrollmentMap).map(([studentID, { enrollment, user }]) => {
-        console.log("studentID", studentID);
-        console.log("enrollment", enrollment);
-        console.log("user", user);
-      });
+      const joinedArray = Array.from(enrollmentMap);
+      setEnrollments(joinedArray);
     }
   };
+
+  async function handleSubmit() {
+    const prompt: MessageInterface = {
+      role: "user",
+      content: input + " Answer:" + selectedAnswer,
+    };
+
+    setMessages([...messages, prompt]);
+    const completion = await openai.chat.completions.create({
+      messages: [...messages, prompt],
+      model: "gpt-3.5-turbo-1106",
+      response_format: { type: "json_object" },
+    });
+
+    const res = completion.choices[0].message.content;
+    if (res) {
+      setMessages((messages) => [
+        ...messages,
+        {
+          role: "assistant",
+          content: res,
+        },
+      ]);
+    }
+  }
 
   useEffect(() => {
     // clearData();
@@ -121,25 +152,22 @@ const CheckExam: React.FC<CheckExamProps> = ({
                             {enrollments?.map(
                               ([studentID, { enrollment, user }]) => {
                                 return (
-                                  <>
-                                    <ListGroup.Item
-                                      className={`${styles2.list_item} flex-column`}
-                                      key={studentID}
-                                      // onClick={() => setSelectedEnrollment(item)}
-                                      onClick={() => {
-                                        setSelectedAnswer(
-                                          enrollment?.studentAnswer
-                                        );
-                                      }}
-                                    >
-                                      <h5 className={`${styles2.exam_name}`}>
-                                        {user.name}{" "}
-                                      </h5>
-                                      <div className={"text-break"}>
-                                        {user.email}
-                                      </div>
-                                    </ListGroup.Item>
-                                  </>
+                                  <ListGroup.Item
+                                    className={`${styles2.list_item} flex-column`}
+                                    key={studentID + enrollment.examID}
+                                    onClick={() => {
+                                      setSelectedAnswer(
+                                        enrollment?.studentAnswer
+                                      );
+                                    }}
+                                  >
+                                    <h5 className={`${styles2.exam_name}`}>
+                                      {user.name}{" "}
+                                    </h5>
+                                    <div className={"text-break"}>
+                                      {user.email}
+                                    </div>
+                                  </ListGroup.Item>
                                 );
                               }
                             )}
@@ -155,49 +183,68 @@ const CheckExam: React.FC<CheckExamProps> = ({
                           xl={7}
                         >
                           <div className="d-flex gap-4 mb-3">
-                          <Dropdown>
-                            <Dropdown.Toggle
-                              variant="success"
-                              id="dropdown-basic"
-                            >
-                              Add Score
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu>
-                              <Dropdown.Item
-                                onClick={() =>
-                                  setStudentScore(StudentScoreType.POOR)
-                                }
+                            <Dropdown>
+                              <Dropdown.Toggle
+                                variant="success"
+                                id="dropdown-basic"
                               >
-                                {StudentScoreType.POOR}
-                              </Dropdown.Item>
-                              <Dropdown.Item
-                                onClick={() =>
-                                  setStudentScore(StudentScoreType.GOOD)
-                                }
-                              >
-                                {StudentScoreType.GOOD}
-                              </Dropdown.Item>
-                              <Dropdown.Item
-                                onClick={() =>
-                                  setStudentScore(StudentScoreType.VERY_GOOD)
-                                }
-                              >
-                                {StudentScoreType.VERY_GOOD}
-                              </Dropdown.Item>
-                              <Dropdown.Item
-                                onClick={() =>
-                                  setStudentScore(StudentScoreType.EXCELLENT)
-                                }
-                              >
-                                {StudentScoreType.EXCELLENT}
-                              </Dropdown.Item>
-                            </Dropdown.Menu>
-                          </Dropdown>
-                          <Button onClick={() => setShowAiResponses(!showAiResponses)}>Ask AI</Button>
-                          {" "}
-                          {examEnrollments?.studentScore}
+                                Add Score
+                              </Dropdown.Toggle>
+                              <Dropdown.Menu>
+                                <Dropdown.Item
+                                  onClick={() =>
+                                    setStudentScore(StudentScoreType.POOR)
+                                  }
+                                >
+                                  {StudentScoreType.POOR}
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                  onClick={() =>
+                                    setStudentScore(StudentScoreType.GOOD)
+                                  }
+                                >
+                                  {StudentScoreType.GOOD}
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                  onClick={() =>
+                                    setStudentScore(StudentScoreType.VERY_GOOD)
+                                  }
+                                >
+                                  {StudentScoreType.VERY_GOOD}
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                  onClick={() =>
+                                    setStudentScore(StudentScoreType.EXCELLENT)
+                                  }
+                                >
+                                  {StudentScoreType.EXCELLENT}
+                                </Dropdown.Item>
+                              </Dropdown.Menu>
+                            </Dropdown>
+                            <Button onClick={handleShow}>Ask AI</Button>{" "}
+                            {examEnrollments?.studentScore}
                           </div>
-
+                          <Modal show={show} onHide={handleClose}>
+                            <Modal.Header closeButton>
+                              <Modal.Title>Chat Modal</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                              <input
+                                type="text"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                              />
+                              <Button variant="primary" onClick={handleSubmit}>
+                                Send
+                              </Button>
+                              <p>{response}</p>
+                            </Modal.Body>
+                            <Modal.Footer>
+                              <Button variant="secondary" onClick={handleClose}>
+                                Close
+                              </Button>
+                            </Modal.Footer>
+                          </Modal>
                           <Tabs
                             defaultActiveKey="answer"
                             transition={false}
@@ -213,7 +260,6 @@ const CheckExam: React.FC<CheckExamProps> = ({
                               </Tab>
                             )}
                           </Tabs>
-                          
                         </Col>
                       </Row>
                     </section>
@@ -255,4 +301,9 @@ interface EnrollExamInterface {
   openaiReplay: string[];
   studentAnswer: string;
   id: string;
+}
+
+interface MessageInterface {
+  role: "assistant" | "user";
+  content: string;
 }
