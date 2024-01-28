@@ -6,10 +6,13 @@ import Login from "./component/Login/index.tsx";
 import PrivateRoute from "./component/PrivateRoute/PrivateRoute.tsx";
 import AuthProvider from "./hooks/AuthProvider.tsx";
 import Register from "./component/Register/index.tsx";
+import { useTranslation } from 'react-i18next';
 
 const App: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <>
+    <h1>{t('Welcome to React')}</h1>
       {/* <div className="nav_container">
         <div className="nav">
           <div className="nav_item">

@@ -60,18 +60,16 @@ class EnrollExamRepository {
 
   // Update a exam enrollments
   async updateExamEnrollment(examEnrollmentId: string, examEnrollment: EnrollExamInterface): Promise<void> {
-    
     try {
-      await updateDoc(doc(this.db, 'enrollments', examEnrollmentId), {
-          studentID: examEnrollment.studentID,
-          examID: examEnrollment.examID,
-          studentScore: examEnrollment.studentScore,
-          openaiReplay: examEnrollment.openaiReplay
-      
+      await updateDoc(doc(this.db, "enrollments", examEnrollmentId), {
+        studentID: examEnrollment.studentID,
+        examID: examEnrollment.examID,
+        studentScore: examEnrollment.studentScore,
+        openaiReplay: examEnrollment.openaiReplay,
       });
     } catch (error) {
-      console.error('Error updating exam enrollment: ', error);
-        throw error; 
+      console.error("Error updating exam enrollment: ", error);
+      throw error;
     }
   }
 

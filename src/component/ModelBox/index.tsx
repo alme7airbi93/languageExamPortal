@@ -32,11 +32,7 @@ const ModelBox: React.FC<ModelBoxProps> = ({
     event.preventDefault();
 
     const exam = new Exam(name!, examQuestion!);
-    console.log("exam", exam);
-    console.log("!exam.name", !exam.name);
-    console.log("!exam.examQuestion", !exam.examQuestion);
     if(!exam.name || !exam.examQuestion) return;
-    console.log("!exam.examQuestion", !exam.examQuestion);
 
     setLoading(true);
     if (mode === "save" && exam) {

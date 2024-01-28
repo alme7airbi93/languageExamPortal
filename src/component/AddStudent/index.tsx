@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import EnrollExamController from "../../controllers/exam-enroll-controllor";
 import "./style.css";
 import { ExamInterface } from "../../Classes/Exams";
-import { StudentScoreType } from "../../Classes/ExamEnroll";
+import { MessageInterface, StudentScoreType } from "../../Classes/ExamEnroll";
 import ExamForm from "../ExamForm";
 import ExamList from "../ExamList";
 import { ExamEnrollment } from "../../Classes/ExamEnroll";
-import { Container, Row, Col, Button, Modal } from "react-bootstrap";
+import { Row, Col, Button, Modal } from "react-bootstrap";
 import { useAuth } from "../../hooks/AuthProvider";
 import Loader from "../Loader";
 
@@ -19,29 +19,6 @@ const AddStudent: React.FC = () => {
   const enrollExamController = new EnrollExamController();
   const [answer, setAnswer] = useState("");
 
-  // const saveAnswer: React.FormEventHandler<HTMLFormElement> = async (event)=>{
-
-  //   event.preventDefault();
-  //   const answerValue = (event.currentTarget.elements.namedItem('answer') as HTMLTextAreaElement)?.value;
-  //   // const examEnrollmentData: Omit<EnrollExamInterface, 'id'> = {
-  //   //   studentID : "0123456789",
-  //   //   examID:selectedExam!.id,
-  //   //   studentScore: StudentScoreType.GOOD,
-  //   //   openaiReplay: [],
-  //   //   studentAnswer:answerValue,
-  //   // }
-  //     let studentID = "0123456789"
-  //     let   examID =selectedExam!.id
-  //     let  studentScore = StudentScoreType.GOOD
-  //     const openaiReplay: string[] = [];
-  //     let  studentAnswer =answerValue
-
-  //   const examEnrollmentData = new ExamEnrollment( studentID ,examID,studentScore,openaiReplay,studentAnswer)
-  //   if (selectedExam?.id) {
-  //     const result = await enrollExamController.addExamEnrollment(examEnrollmentData);
-  //         setExamEnrollments(result);
-  //   }
-  // }
   const saveAnswer: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
 
@@ -52,7 +29,12 @@ const AddStudent: React.FC = () => {
       const studentScore = StudentScoreType.PENDING;
       const studentAnswer = answerValue;
 
-      const openaiReplay = [""];
+      const openaiReplay: MessageInterface[] = [
+        {
+          role: "system",
+          content: "You are a helpful assistant",
+        },
+      ];
       const examEnrollmentData = new ExamEnrollment(
         studentID,
         examID,
@@ -127,7 +109,7 @@ interface EnrollExamInterface {
   studentID: string;
   examID: string;
   studentScore: StudentScoreType;
-  openaiReplay: string[];
+  openaiReplay: MessageInterface[];
   studentAnswer: string;
   id: string;
 }

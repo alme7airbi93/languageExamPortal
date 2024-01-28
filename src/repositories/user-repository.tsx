@@ -64,29 +64,27 @@ class UserRepository {
 
   async getUsersByStudentIDs(studentIDs: string[]): Promise<UserInterface[]> {
     try {
-      console.log("studentIDs", studentIDs);
-      
-   const snapshot = await getDocs(
-     query(
-       collection(this.db, "users"),
-       where(
-         documentId(),
-         "in",
-         studentIDs.map((userId) => doc(this.db, "users", userId))
-       )
-     )
-   );
+      const snapshot = await getDocs(
+        query(
+          collection(this.db, "users"),
+          where(
+            documentId(),
+            "in",
+            studentIDs.map((userId) => doc(this.db, "users", userId))
+          )
+        )
+      );
 
-   return snapshot.docs.map((doc) => {
-     const data = doc.data();
-     return {
-       id: doc.id,
-       email: data.email,
-       name: data.name,
-       type: data.type,
-     } as UserInterface;
-   });
- }
+      return snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          email: data.email,
+          name: data.name,
+          type: data.type,
+        } as UserInterface;
+      });
+    }
    catch (error) {
      console.error('Error getting users: ', error);
       throw error; 

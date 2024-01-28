@@ -39,18 +39,22 @@ export interface EnrollExamInterface {
   studentID: string;
   examID: string;
   studentScore: StudentScoreType;
-  openaiReplay: string[];
+  openaiReplay: MessageInterface[];
   studentAnswer:string;
   id : string;
 
 }
 
+export interface MessageInterface {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
 
 export class ExamEnrollment {
   studentID: string;
   examID: string;
   studentScore: StudentScoreType;
-  openaiReplay: string[]; 
+  openaiReplay: MessageInterface[]; 
   studentAnswer:string;
   id!:string;
 
@@ -59,7 +63,7 @@ export class ExamEnrollment {
     examID: string,
     studentScore: StudentScoreType,
      studentAnswer:string,
-     openaiReplay: string[] 
+     openaiReplay: MessageInterface[] 
   ) {
     this.id;
     this.studentID = studentID;

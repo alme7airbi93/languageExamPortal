@@ -10,6 +10,7 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 import { auth } from "../repositories/firebase-config";
 import UserController from "../controllers/userController";
@@ -61,7 +62,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             name: user.name,
             type: user.type,
           });
-          console.log("user", user);
           navigate(user.type.toLowerCase());
         }
         setIsInitialized(true);
@@ -93,9 +93,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             type: UserType.STUDENT,
             id: userData.uid,
           });
-
-          console.log("newUser", newUser);
-
           navigate(newUser.type.toLowerCase());
           return;
         })
@@ -138,8 +135,15 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logOut = () => {
-    setUser(null);
-    navigate("/login");
+    signOut(auth)
+      .then(() => {
+        navigate("/login");
+        setUser(null);
+      })
+      .catch((error) => {
+        console.log(error);
+        navigate("/login");
+      });
   };
 
   if (isInitialized === false) {

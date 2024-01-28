@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { StudentScoreType } from "../../Classes/ExamEnroll";
+import {
+  EnrollExamInterface,
+  StudentScoreType,
+} from "../../Classes/ExamEnroll";
 import styles from "../ExamForm/style.module.scss";
 import { ExamInterface } from "../../Classes/Exams";
 import EnrollExamController from "../../controllers/exam-enroll-controllor";
-import Dropdown from "react-bootstrap/Dropdown";
 import UserController from "../../controllers/userController";
 import { useAuth } from "../../hooks/AuthProvider";
 import { UserType } from "../../Classes/Users";
@@ -11,40 +13,84 @@ import "../AddStudent/style.css";
 import { Col, Row, ListGroup, Tabs, Tab, Button, Modal } from "react-bootstrap";
 import styles2 from "../ExamList/examlist.module.scss";
 import openai from "../../api/openai";
+import { TbMessageChatbot } from "react-icons/tb";
+import { CiUser } from "react-icons/ci";
+import { MessageInterface } from "../../Classes/ExamEnroll";
+import Form from "react-bootstrap/Form";
+import OverlayLoader from "../Loader/OverlayLoader";
+import { LuExpand } from "react-icons/lu";
+import { LuShrink } from "react-icons/lu";
 
 const CheckExam: React.FC<CheckExamProps> = ({
   selectedExam,
-  examEnrollments,
+  handleFullScreen,
+  showFullscreen,
+  enrollments,
+  setEnrollments,
+  selectedAnswer,
+  setSelectedAnswer,
+  selectedEnrollment,
+  setSelectedEnrollment,
+  messages,
+  setMessages,
+  activeTab,
+  setActiveTab,
+  score,
+  setScore,
 }) => {
-  const [enrollments, setEnrollments] = useState<any[]>();
-  const [selectedEnrollment, setSelectedEnrollment] =
-    useState<EnrollExamInterface>();
-  const [studentScore, setStudentScore] = useState<StudentScoreType>();
-  const [showAiResponses, setShowAiResponses] = useState(false);
-  const [selectedAnswer, setSelectedAnswer] = useState("");
   const [show, setShow] = useState(false);
   const [input, setInput] = useState("");
-  const [response, setResponse] = useState("");
-  const [messages, setMessages] = useState<MessageInterface[]>([
-    {
-      role: "assistant",
-      content: "You are a helpful assistant designed to output JSON.",
-    },
-  ]);
-
+  const [loading, setLoading] = useState(false);
 
   const { user: authUser } = useAuth();
 
   const enrollExamController = new EnrollExamController();
   const user = new UserController();
 
-  const handleClose = () => setShow(false);
+  const handleClose = async () => {
+    if (selectedEnrollment) {
+      const enrollment = { ...selectedEnrollment };
+      enrollment.openaiReplay = messages;
+      await enrollExamController.updateExamEnrollment(
+        enrollment?.id,
+        enrollment
+      );
+      await getEnrollments();
+    }
+    setShow(false);
+  };
+
   const handleShow = () => setShow(true);
+
+  const handleSelect = (key: string | null = "answer") => {
+    if (key) setActiveTab(key);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedScore = event.target.value as StudentScoreType;
+    setScore(selectedScore);
+    if (selectedScore === StudentScoreType.PENDING) {
+      return;
+    }
+    giveStudentScore(selectedScore);
+  };
+
+  const giveStudentScore = async (score: StudentScoreType) => {
+    if (selectedEnrollment) {
+      const enrollment = { ...selectedEnrollment };
+      enrollment.studentScore = score;
+      setLoading(true);
+      await enrollExamController.updateExamEnrollment(
+        enrollment?.id,
+        enrollment
+      );
+      await getEnrollments();
+      setLoading(false);
+    }
+  };
 
   const getEnrollments = async () => {
     if (selectedExam?.id) {
-      console.log(studentScore);
-
       const enrollments =
         await enrollExamController.fetchSelectedExamEnrollments(
           selectedExam?.id
@@ -64,16 +110,21 @@ const CheckExam: React.FC<CheckExamProps> = ({
   };
 
   async function handleSubmit() {
-    const prompt: MessageInterface = {
+    if (input === "") return;
+    let prompt: MessageInterface = {
       role: "user",
-      content: input + " Answer:" + selectedAnswer,
+      content: input + " Student Answer: " + selectedAnswer,
     };
-
+    if (messages.length > 2) {
+      prompt = {
+        role: "user",
+        content: input,
+      };
+    }
     setMessages([...messages, prompt]);
     const completion = await openai.chat.completions.create({
       messages: [...messages, prompt],
       model: "gpt-3.5-turbo-1106",
-      response_format: { type: "json_object" },
     });
 
     const res = completion.choices[0].message.content;
@@ -85,21 +136,19 @@ const CheckExam: React.FC<CheckExamProps> = ({
           content: res,
         },
       ]);
+      setInput("");
     }
   }
 
   useEffect(() => {
-    // clearData();
+    if (!showFullscreen) {
+      setMessages([]);
+      setSelectedAnswer("");
+      setActiveTab("answer");
+    }
     getEnrollments();
   }, [selectedExam]);
 
-  useEffect(() => {
-    // setAnswer(selectedEnrollment?.studentAnswer || "");
-  }, [selectedEnrollment]);
-
-  // const handleAnswerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-  //   setAnswer(e.target.value);
-  // };
 
   return (
     <div className={styles.exam__form}>
@@ -109,10 +158,24 @@ const CheckExam: React.FC<CheckExamProps> = ({
             <div className="d-flex justify-content-center row m-0">
               <div className="col-md-12 col-lg-12">
                 <form onSubmit={() => {}}>
-                  <div className="border">
+                  <div className="border position-relative">
+                    {loading && <OverlayLoader />}
                     <div className="question bg-white p-3 border-bottom">
                       <div className="d-flex flex-row justify-content-between align-items-center mcq">
                         <h4>{selectedExam?.name}</h4>
+                        {showFullscreen ? (
+                          <LuShrink
+                            size="24"
+                            onClick={() => handleFullScreen(false)}
+                            cursor={"pointer"}
+                          />
+                        ) : (
+                          <LuExpand
+                            size="24"
+                            onClick={() => handleFullScreen(true)}
+                            cursor={"pointer"}
+                          />
+                        )}
                       </div>
                     </div>
                     <div className="question bg-white p-3 border-bottom">
@@ -122,16 +185,6 @@ const CheckExam: React.FC<CheckExamProps> = ({
                           {selectedExam?.examQuestion}
                         </h5>
                       </div>
-                      {/* <div className="ans ml-4">
-                        <textarea
-                          name="answer"
-                          id="answer"
-                          cols={30}
-                          rows={10}
-                          value={answer}
-                          onChange={handleAnswerChange}
-                        ></textarea>
-                      </div> */}
                     </div>
                     <section className="section bg-white p-3 border-bottom">
                       <Row className="vh-50">
@@ -150,15 +203,21 @@ const CheckExam: React.FC<CheckExamProps> = ({
                               Students Enrolled
                             </h5>
                             {enrollments?.map(
+                              // @ts-ignore
                               ([studentID, { enrollment, user }]) => {
                                 return (
                                   <ListGroup.Item
                                     className={`${styles2.list_item} flex-column`}
                                     key={studentID + enrollment.examID}
                                     onClick={() => {
+                                      setMessages(enrollment.openaiReplay);
                                       setSelectedAnswer(
                                         enrollment?.studentAnswer
                                       );
+                                      setSelectedEnrollment(enrollment);
+                                      setActiveTab("answer");
+
+                                      setScore(enrollment?.studentScore);
                                     }}
                                   >
                                     <h5 className={`${styles2.exam_name}`}>
@@ -182,62 +241,90 @@ const CheckExam: React.FC<CheckExamProps> = ({
                           md={7}
                           xl={7}
                         >
-                          <div className="d-flex gap-4 mb-3">
-                            <Dropdown>
-                              <Dropdown.Toggle
-                                variant="success"
-                                id="dropdown-basic"
-                              >
-                                Add Score
-                              </Dropdown.Toggle>
-                              <Dropdown.Menu>
-                                <Dropdown.Item
-                                  onClick={() =>
-                                    setStudentScore(StudentScoreType.POOR)
-                                  }
+                          <div className="d-flex gap-4 mb-3 align-items-center ">
+                            {!!selectedAnswer.length && (
+                              <>
+                                <h5 className="mt-1">Score: </h5>
+                                <Form.Select
+                                  aria-label="score"
+                                  id="score"
+                                  onChange={handleChange}
+                                  value={score}
+                                  className={styles.score}
                                 >
-                                  {StudentScoreType.POOR}
-                                </Dropdown.Item>
-                                <Dropdown.Item
-                                  onClick={() =>
-                                    setStudentScore(StudentScoreType.GOOD)
-                                  }
-                                >
-                                  {StudentScoreType.GOOD}
-                                </Dropdown.Item>
-                                <Dropdown.Item
-                                  onClick={() =>
-                                    setStudentScore(StudentScoreType.VERY_GOOD)
-                                  }
-                                >
-                                  {StudentScoreType.VERY_GOOD}
-                                </Dropdown.Item>
-                                <Dropdown.Item
-                                  onClick={() =>
-                                    setStudentScore(StudentScoreType.EXCELLENT)
-                                  }
-                                >
-                                  {StudentScoreType.EXCELLENT}
-                                </Dropdown.Item>
-                              </Dropdown.Menu>
-                            </Dropdown>
-                            <Button onClick={handleShow}>Ask AI</Button>{" "}
-                            {examEnrollments?.studentScore}
+                                  <option value={StudentScoreType.PENDING}>
+                                    ADD STUDENT SCORE
+                                  </option>
+                                  <option value={StudentScoreType.POOR}>
+                                    {StudentScoreType.POOR}
+                                  </option>
+                                  <option value={StudentScoreType.GOOD}>
+                                    {StudentScoreType.GOOD}
+                                  </option>
+                                  <option value={StudentScoreType.VERY_GOOD}>
+                                    {StudentScoreType.VERY_GOOD}
+                                  </option>
+                                  <option value={StudentScoreType.EXCELLENT}>
+                                    {StudentScoreType.EXCELLENT}
+                                  </option>
+                                </Form.Select>
+                                <Button onClick={handleShow}>Ask AI</Button>{" "}
+                              </>
+                            )}
                           </div>
                           <Modal show={show} onHide={handleClose}>
-                            <Modal.Header closeButton>
-                              <Modal.Title>Chat Modal</Modal.Title>
+                            <Modal.Header>
+                              <Modal.Title>Ask AI</Modal.Title>
                             </Modal.Header>
                             <Modal.Body>
-                              <input
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                              />
-                              <Button variant="primary" onClick={handleSubmit}>
-                                Send
-                              </Button>
-                              <p>{response}</p>
+                              <div className={styles.message_container}>
+                                {messages.map(
+                                  ({ role, content }, i) =>
+                                    role !== "system" && (
+                                      <div
+                                        className={styles.message_wrapper}
+                                        key={i}
+                                      >
+                                        <div>
+                                          {role === "assistant" ? (
+                                            <TbMessageChatbot
+                                              className={styles.avatar}
+                                              color="white"
+                                            />
+                                          ) : (
+                                            <CiUser
+                                              className={styles.avatar}
+                                              color="white"
+                                            />
+                                          )}
+                                        </div>
+                                        <div>
+                                          <p className="text-white">
+                                            {
+                                              content.split(
+                                                " Student Answer: "
+                                              )[0]
+                                            }
+                                          </p>
+                                        </div>
+                                      </div>
+                                    )
+                                )}
+                              </div>
+                              <div className={styles.wrapper}>
+                                <input
+                                  className={styles.text}
+                                  placeholder="Your prompt here..."
+                                  value={input}
+                                  onChange={(e) => setInput(e.target.value)}
+                                />
+                                <button
+                                  className={styles.btn}
+                                  onClick={handleSubmit}
+                                >
+                                  Ask
+                                </button>
+                              </div>
                             </Modal.Body>
                             <Modal.Footer>
                               <Button variant="secondary" onClick={handleClose}>
@@ -246,32 +333,65 @@ const CheckExam: React.FC<CheckExamProps> = ({
                             </Modal.Footer>
                           </Modal>
                           <Tabs
-                            defaultActiveKey="answer"
+                            activeKey={activeTab}
+                            onSelect={handleSelect}
                             transition={false}
                             id="noanim-tab-example"
                             className="mb-3"
                           >
                             <Tab eventKey="answer" title="Answer">
-                              {selectedAnswer}
+                              {!!selectedAnswer.length ? (
+                                <div>{selectedAnswer}</div>
+                              ) : (
+                                <div>
+                                  <p className="fw-bold fs-5">
+                                    Click on any student to see his/her answer
+                                  </p>
+                                </div>
+                              )}
                             </Tab>
-                            {showAiResponses && (
-                              <Tab eventKey="profile" title="Profile">
-                                Tab content for Profile
+                            {messages.length > 1 && (
+                              <Tab eventKey="response" title="AI Response">
+                                <div className={styles.ai_response_container}>
+                                  {messages.map(
+                                    ({ role, content }, i) =>
+                                      role !== "system" && (
+                                        <div
+                                          className={styles.message_wrapper}
+                                          key={i}
+                                        >
+                                          <div>
+                                            {role === "assistant" ? (
+                                              <TbMessageChatbot
+                                                className={styles.avatar}
+                                                color="white"
+                                              />
+                                            ) : (
+                                              <CiUser
+                                                className={styles.avatar}
+                                                color="white"
+                                              />
+                                            )}
+                                          </div>
+                                          <div>
+                                            <p className="text-white">
+                                              {
+                                                content.split(
+                                                  " Student Answer: "
+                                                )[0]
+                                              }
+                                            </p>
+                                          </div>
+                                        </div>
+                                      )
+                                  )}
+                                </div>
                               </Tab>
                             )}
                           </Tabs>
                         </Col>
                       </Row>
                     </section>
-
-                    <div className="d-flex flex-row justify-content-center align-items-center p-3 bg-white">
-                      <button
-                        className="btn btn-primary border-success align-items-center btn-success"
-                        type="submit"
-                      >
-                        Submit Score
-                      </button>
-                    </div>
                   </div>
                 </form>
               </div>
@@ -291,19 +411,18 @@ export default CheckExam;
 
 interface CheckExamProps {
   selectedExam: ExamInterface | undefined;
-  examEnrollments: EnrollExamInterface | undefined;
-}
-
-interface EnrollExamInterface {
-  studentID: string;
-  examID: string;
-  studentScore: StudentScoreType;
-  openaiReplay: string[];
-  studentAnswer: string;
-  id: string;
-}
-
-interface MessageInterface {
-  role: "assistant" | "user";
-  content: string;
+  handleFullScreen: (isShowFullScreen: boolean) => void;
+  showFullscreen: boolean;
+  enrollments: any;
+  setEnrollments: any;
+  selectedAnswer: string;
+  setSelectedAnswer: React.Dispatch<React.SetStateAction<string>>;
+  selectedEnrollment: EnrollExamInterface | undefined;
+  setSelectedEnrollment: React.Dispatch<React.SetStateAction<EnrollExamInterface | undefined>>;
+  messages: MessageInterface[];
+  setMessages: React.Dispatch<React.SetStateAction<MessageInterface[]>>;
+  activeTab: string;
+  setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+  score: StudentScoreType;
+  setScore: React.Dispatch<React.SetStateAction<StudentScoreType>>;
 }

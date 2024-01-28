@@ -95,9 +95,8 @@ box-shadow: none !important;
 }
 
 .vh-50 {
-  height: 50vh;
-
-  max-height: 50vh;
+  height: 65vh;
+  max-height: 65vh;
 }
 
 .exam_form textarea {

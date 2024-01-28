@@ -53,7 +53,6 @@ const ExamList: React.FC<ExamFormProps> = ({
       const notEnrolledExams = allExams.filter(
         (exam) => !enrolledExamIds.includes(exam.id)
       );
-      console.log("notEnrolledExams", notEnrolledExams);
 
       setExams(notEnrolledExams);
       setFilteredExams(notEnrolledExams);

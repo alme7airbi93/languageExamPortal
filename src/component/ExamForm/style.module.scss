@@ -81,3 +81,62 @@
 .select_exam {
   color: #656d76 !important;
 }
+
+.wrapper {
+  display: grid;
+  grid-template-columns: auto 100px;
+  height: 64px;
+  border-radius: 10px;
+  background-color: #323236;
+}
+
+.text {
+  border: none;
+  outline: none;
+  background: none;
+  padding: 20px;
+  color: white;
+  font-size: 16px;
+}
+
+.btn {
+  border: none;
+  border-radius: 10px 0 0 10px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: rgb(218, 255, 170);
+}
+
+.btn:hover {
+  cursor: pointer;
+  background-color: rgb(200, 253, 130);
+}
+
+.message_wrapper {
+  display: grid;
+  grid-template-columns: 60px auto;
+  min-height: 60px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background-color: #1b1b1d;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.message_container {
+  max-height: 400px;
+  overflow: auto;
+}
+
+.ai_response_container {
+  max-height: 50vh;
+  overflow: auto;
+}
+
+.score {
+  width: auto !important;
+}
