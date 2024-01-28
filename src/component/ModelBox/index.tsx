@@ -14,6 +14,7 @@ const ModelBox: React.FC<ModelBoxProps> = ({
   setShow,
   setLoading,
   fetchExams,
+  selectExam,
 }) => {
   const [name, setName] = useState("");
   const [examQuestion, setExamQuestion] = useState("");
@@ -42,6 +43,7 @@ const ModelBox: React.FC<ModelBoxProps> = ({
       handleClose();
       exam.id = selectedExam.id;
       await examController.updateExam(exam);
+      selectExam(exam);
     }
     await fetchExams();
     setLoading(false);
@@ -123,4 +125,5 @@ interface ModelBoxProps {
   >;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   fetchExams: () => void;
+  selectExam: (exam: ExamInterface) => void;
 }

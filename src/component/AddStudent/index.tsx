@@ -15,7 +15,7 @@ const AddStudent: React.FC = () => {
   const [selectedExam, setSelectedExam] = useState<ExamInterface>();
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
-  const { user: authUser } = useAuth();
+  const { user: authUser, ...authContext } = useAuth();
   const enrollExamController = new EnrollExamController();
   const [answer, setAnswer] = useState("");
 
@@ -71,6 +71,7 @@ const AddStudent: React.FC = () => {
               setAnswer("");
             }}
             examEnrollments={examEnrollments}
+            currentExam={selectedExam}
           />
         </Col>
         <Col xs={7} md={8} xl={9} className="p-0 m-0">
@@ -101,6 +102,15 @@ const AddStudent: React.FC = () => {
           </Modal>
         </Col>
       </Row>
+      {authUser && (
+        <Button
+          variant="secondary"
+          onClick={() => authContext?.logOut()}
+          className="logout"
+        >
+          Logout
+        </Button>
+      )}
     </div>
   );
 };

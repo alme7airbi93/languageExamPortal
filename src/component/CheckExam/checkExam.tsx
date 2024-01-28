@@ -20,6 +20,7 @@ import Form from "react-bootstrap/Form";
 import OverlayLoader from "../Loader/OverlayLoader";
 import { LuExpand } from "react-icons/lu";
 import { LuShrink } from "react-icons/lu";
+import { useTranslation } from "react-i18next";
 
 const CheckExam: React.FC<CheckExamProps> = ({
   selectedExam,
@@ -41,6 +42,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
   const [show, setShow] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const { user: authUser } = useAuth();
 
@@ -55,9 +57,9 @@ const CheckExam: React.FC<CheckExamProps> = ({
         enrollment?.id,
         enrollment
       );
-      await getEnrollments();
     }
     setShow(false);
+    await getEnrollments();
   };
 
   const handleShow = () => setShow(true);
@@ -152,7 +154,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
 
   return (
     <div className={styles.exam__form}>
-      {selectedExam ? (
+      {!!(selectedExam && Object.keys(selectedExam).length) ? (
         <>
           <div className="mt-5 exam_form">
             <div className="d-flex justify-content-center row m-0">
@@ -207,7 +209,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
                               ([studentID, { enrollment, user }]) => {
                                 return (
                                   <ListGroup.Item
-                                    className={`${styles2.list_item} flex-column`}
+                                    className={`${styles2.list_item} flex-column ${enrollment.id === selectedEnrollment?.id && styles2.current_exam}`}
                                     key={studentID + enrollment.examID}
                                     onClick={() => {
                                       setMessages(enrollment.openaiReplay);
@@ -400,7 +402,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
         </>
       ) : (
         <div className="w-100 h-100 d-flex justify-content-center align-items-center">
-          <h1 className={styles.select_exam}>Select an exam from the list</h1>
+          <h1 className={styles.select_exam}>{t('Select an exam from the list')}</h1>
         </div>
       )}
     </div>

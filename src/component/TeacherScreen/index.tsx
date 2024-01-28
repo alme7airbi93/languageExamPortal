@@ -41,6 +41,7 @@ const TeacherScreen: React.FC = () => {
           <ExamList
             selectExam={(exam: ExamInterface) => setSelectedExam(exam)}
             examEnrollments={examEnrollments}
+            currentExam={selectedExam}
           />
         </Col>
         <Col xs={7} md={8} xl={9} className="p-0 m-0">
@@ -86,7 +87,6 @@ const TeacherScreen: React.FC = () => {
           setScore={setScore}
         />
       </Modal>
-
       <Button variant="secondary" onClick={user.logOut} className="logout">
         Logout
       </Button>

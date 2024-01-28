@@ -25,6 +25,7 @@ import OverlayLoader from "../Loader/OverlayLoader";
 const ExamList: React.FC<ExamFormProps> = ({
   selectExam,
   examEnrollments,
+  currentExam,
 }) => {
   const [exams, setExams] = useState<ExamInterface[]>([]);
   const [examsLoading, setExamsLoading] = useState(true);
@@ -82,6 +83,7 @@ const ExamList: React.FC<ExamFormProps> = ({
     examCopy.splice(index, 1);
     setFilteredExams(examCopy);
     setLoading(false);
+    selectExam({} as ExamInterface);
   };
 
   const handleModal = (mode: string) => {
@@ -100,17 +102,20 @@ const ExamList: React.FC<ExamFormProps> = ({
           setSelectedExam={setSelectedExam}
           setLoading={setLoading}
           fetchExams={fetchExams}
+          selectExam={selectExam}
         />
       )}
       <Card className={styles.Card}>
         {loading && <OverlayLoader />}
         <Card.Header className={`position-relative ${styles.exam_header}`}>
           Exams
-          <FaPlus
-            className={styles.add_icon}
-            size="24"
-            onClick={() => handleModal("save")}
-          />
+          {user?.type === UserType.TEACHER && (
+            <FaPlus
+              className={styles.add_icon}
+              size="24"
+              onClick={() => handleModal("save")}
+            />
+          )}
         </Card.Header>
         <InputGroup className="pr-1">
           <FormControl
@@ -132,7 +137,9 @@ const ExamList: React.FC<ExamFormProps> = ({
           <ListGroup className={`pr-1 ${styles.list_group}`}>
             {filteredExams.map((exam, index) => (
               <ListGroup.Item
-                className={styles.list_item}
+                className={`${styles.list_item} ${
+                  currentExam?.id === exam.id && styles.current_exam
+                }`}
                 key={exam.id}
                 action
                 onClick={() => selectExam(exam)}
@@ -151,7 +158,8 @@ const ExamList: React.FC<ExamFormProps> = ({
                   )}
                   {user?.type === UserType.TEACHER && (
                     <MdOutlineEdit
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         handleModal("edit");
                         setSelectedExam(exam);
                       }}
@@ -178,13 +186,17 @@ export default ExamList;
 interface ExamFormProps {
   selectExam: (exam: ExamInterface) => void;
   examEnrollments: EnrollExamInterface | undefined;
+  currentExam: ExamInterface | undefined;
 }
 
 const ModelDel: React.FC<ModelBoxProps> = ({ deleteExam, examID, index }) => {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleShow = (e: React.MouseEvent<SVGElement>) => {
+    e.stopPropagation();
+    setShow(true);
+  }
 
   return (
     <>
@@ -200,7 +212,9 @@ const ModelDel: React.FC<ModelBoxProps> = ({ deleteExam, examID, index }) => {
           </Button>
           <Button
             variant="danger"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
+              // e.preventDefault();
               handleClose();
               deleteExam(examID, index);
             }}

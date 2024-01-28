@@ -2,24 +2,19 @@ import { useState, useEffect } from "react";
 import { StudentScoreType } from "../../Classes/ExamEnroll";
 import styles from "./style.module.scss";
 import { ExamInterface } from "../../Classes/Exams";
-import EnrollExamController from "../../controllers/exam-enroll-controllor";
-import UserController from "../../controllers/userController";
 import "../AddStudent/style.css";
+import { useTranslation } from "react-i18next";
 
 const ExamForm: React.FC<ExamFormProps> = ({
   selectedExam,
   saveAnswer,
-  clearData,
   answer,
   setAnswer,
 }) => {
-  const [enrollments, setEnrollments] = useState<any[]>();
   const [selectedEnrollment, setSelectedEnrollment] =
     useState<EnrollExamInterface>();
-  const [studentScore, setStudentScore] = useState<StudentScoreType>();
+  const { t } = useTranslation();
 
-  const enrollExamController = new EnrollExamController();
-  const user = new UserController();
 
   useEffect(() => {
     setAnswer(selectedEnrollment?.studentAnswer || "");
@@ -78,7 +73,7 @@ const ExamForm: React.FC<ExamFormProps> = ({
         </>
       ) : (
         <div className="w-100 h-100 d-flex justify-content-center align-items-center">
-          <h1 className={styles.select_exam}>Select an exam from the list</h1>
+          <h1 className={styles.select_exam}>{t('Select an exam from the list')}</h1>
         </div>
       )}
     </div>
