@@ -115,7 +115,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
     if (input === "") return;
     let prompt: MessageInterface = {
       role: "user",
-      content: input + " Student Answer: " + selectedAnswer,
+      content: input + " Student Question: " + selectedExam?.examQuestion + " Student Answer: " + selectedAnswer,
     };
     if (messages.length > 2) {
       prompt = {
@@ -304,7 +304,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
                                           <p className="text-white">
                                             {
                                               content.split(
-                                                " Student Answer: "
+                                                " Student Question: "
                                               )[0]
                                             }
                                           </p>
@@ -379,7 +379,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
                                             <p className="text-white">
                                               {
                                                 content.split(
-                                                  " Student Answer: "
+                                                  " Student Question: "
                                                 )[0]
                                               }
                                             </p>
