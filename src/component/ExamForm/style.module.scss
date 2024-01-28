@@ -87,7 +87,8 @@
   grid-template-columns: auto 100px;
   height: 64px;
   border-radius: 10px;
-  background-color: #323236;
+  background-color: #4961ee;
+  color: white;
 }
 
 .text {
@@ -97,6 +98,10 @@
   padding: 20px;
   color: white;
   font-size: 16px;
+
+  &::placeholder {
+    color: #f0f0f0;
+  }
 }
 
 .btn {
@@ -104,12 +109,13 @@
   border-radius: 10px 0 0 10px;
   font-size: 16px;
   font-weight: bold;
-  background-color: rgb(218, 255, 170);
+  background-color: #6478EE;
+  color: white;
 }
 
 .btn:hover {
   cursor: pointer;
-  background-color: rgb(200, 253, 130);
+  background-color: #788cff;
 }
 
 .message_wrapper {
@@ -119,7 +125,7 @@
   padding: 20px;
   margin-bottom: 20px;
   border-radius: 10px;
-  background-color: #1b1b1d;
+  background-color: #6478EE;
 }
 
 .avatar {
