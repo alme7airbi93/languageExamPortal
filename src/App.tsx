@@ -1,12 +1,10 @@
-import { Routes, Route, NavLink } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import StudentPage from "./pages/StudentPage";
 import TeacherPage from "./pages/TeacherPage";
-import HomePage from "./pages/HomePage";
 import Login from "./component/Login/index.tsx";
 import PrivateRoute from "./component/PrivateRoute/PrivateRoute.tsx";
 import AuthProvider from "./hooks/AuthProvider.tsx";
 import Register from "./component/Register/index.tsx";
-import { useTranslation } from 'react-i18next';
 
 const App: React.FC = () => {
   return (

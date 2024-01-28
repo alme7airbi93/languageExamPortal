@@ -1,9 +1,9 @@
 export enum StudentScoreType {
   PENDING = "PENDING",
-  POOR = "POOR",
-  GOOD = "GOOD",
-  VERY_GOOD = "VERY GOOD",
-  EXCELLENT = "EXCELLENT",
+  POOR = "ضعيف",
+  GOOD = "جيد",
+  VERY_GOOD = "جيد جدا",
+  EXCELLENT = "ممتاز",
 }
 
 // // ExamEnrollment Class

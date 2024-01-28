@@ -7,7 +7,7 @@ interface UserFormProps {
   onAddUser: (user: User) => void;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ onAddUser }) => {
+const UserForm: React.FC<UserFormProps> = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [userType, setUserType] = useState(UserType.STUDENT);
@@ -15,12 +15,12 @@ const UserForm: React.FC<UserFormProps> = ({ onAddUser }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Create a new user instance
-    const newUser = new User(email, name, userType);
-console.log("newUser",newUser);
+//     // Create a new user instance
+//     const newUser = new User(email, name, userType);
+// console.log("newUser",newUser);
 
-    // Callback to the parent component to add the new user
-    onAddUser(newUser);
+//     // Callback to the parent component to add the new user
+//     onAddUser(newUser);
 
     // Reset form fields
     setEmail('');

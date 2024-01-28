@@ -11,7 +11,7 @@ const ExamForm: React.FC<ExamFormProps> = ({
   answer,
   setAnswer,
 }) => {
-  const [selectedEnrollment, setSelectedEnrollment] =
+  const [selectedEnrollment] =
     useState<EnrollExamInterface>();
   const { t } = useTranslation();
 

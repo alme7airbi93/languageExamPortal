@@ -11,7 +11,7 @@ import { useAuth } from "../../hooks/AuthProvider";
 import { useTranslation } from "react-i18next";
 
 const TeacherScreen: React.FC = () => {
-  const [examEnrollments, setExamEnrollments] = useState<EnrollExamInterface>();
+  const [examEnrollments] = useState<EnrollExamInterface>();
   const [selectedExam, setSelectedExam] = useState<ExamInterface>();
   const [fullscreen, setFullscreen] = useState<string | true | undefined>(true);
   const [showFullscreen, setShowFullscreen] = useState(false);
