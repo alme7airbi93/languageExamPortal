@@ -21,6 +21,7 @@ import EnrollExamController from "../../controllers/exam-enroll-controllor";
 import { EnrollExamInterface } from "../../Classes/ExamEnroll";
 import Loader from "../Loader";
 import OverlayLoader from "../Loader/OverlayLoader";
+import { useTranslation } from "react-i18next";
 
 const ExamList: React.FC<ExamFormProps> = ({
   selectExam,
@@ -37,6 +38,7 @@ const ExamList: React.FC<ExamFormProps> = ({
   const examController = new ExamController();
   const enrollExamController = new EnrollExamController();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const fetchExams = async () => {
     const allExams = await examController.getExams();
@@ -108,7 +110,7 @@ const ExamList: React.FC<ExamFormProps> = ({
       <Card className={styles.Card}>
         {loading && <OverlayLoader />}
         <Card.Header className={`position-relative ${styles.exam_header}`}>
-          Exams
+        {t("Exams")}
           {user?.type === UserType.TEACHER && (
             <FaPlus
               className={styles.add_icon}
@@ -119,7 +121,7 @@ const ExamList: React.FC<ExamFormProps> = ({
         </Card.Header>
         <InputGroup className="pr-1">
           <FormControl
-            placeholder="Search exams"
+            placeholder={t("Search exams")}
             aria-label="Search exams"
             aria-describedby="basic-addon2"
             onChange={searchExam}
@@ -146,17 +148,16 @@ const ExamList: React.FC<ExamFormProps> = ({
               >
                 <h5 className={styles.exam_name}>{exam.name} </h5>
                 {user?.type === UserType.STUDENT && (
-                  <div onClick={() => selectExam(exam)}>Join Exam</div>
+                  <div onClick={() => selectExam(exam)}>{t("Join Exam")}</div>
                 )}
-                <div>
+                <>
                   {user?.type === UserType.TEACHER && (
+                    <div>
                     <ModelDel
                       deleteExam={deleteExam}
                       examID={exam.id}
                       index={index}
                     />
-                  )}
-                  {user?.type === UserType.TEACHER && (
                     <MdOutlineEdit
                       onClick={(e) => {
                         e.stopPropagation();
@@ -166,14 +167,15 @@ const ExamList: React.FC<ExamFormProps> = ({
                       size="24"
                       className={styles.edit_icon}
                     />
+                    </div>
                   )}
-                </div>
+                </>
               </ListGroup.Item>
             ))}
           </ListGroup>
         ) : (
           <div className={`${styles.list_item} ${styles.list_empty_item}`}>
-            <h5 className={styles.exam_name}>No Exams Available </h5>
+            <h5 className={styles.exam_name}>{t("No Exams Available")} </h5>
           </div>
         )}
       </Card>
@@ -191,6 +193,7 @@ interface ExamFormProps {
 
 const ModelDel: React.FC<ModelBoxProps> = ({ deleteExam, examID, index }) => {
   const [show, setShow] = useState(false);
+  const { t } = useTranslation();
 
   const handleClose = () => setShow(false);
   const handleShow = (e: React.MouseEvent<SVGElement>) => {
@@ -203,12 +206,12 @@ const ModelDel: React.FC<ModelBoxProps> = ({ deleteExam, examID, index }) => {
       <RiDeleteBin5Line size="24" className="ml-4" onClick={handleShow} />
       <Modal show={show} onHide={handleClose}>
         <Modal.Header className="text-capitalize">
-          <Modal.Title>Delete Exam</Modal.Title>
+          <Modal.Title>{t("Delete Exam")}</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Are you sure you want to delete this exam</Modal.Body>
+        <Modal.Body>{t("Are you sure you want to delete this exam")}</Modal.Body>
         <Modal.Footer className="d-flex justify-content-start">
           <Button variant="secondary" onClick={handleClose}>
-            No
+          {t("No")}
           </Button>
           <Button
             variant="danger"
@@ -219,7 +222,7 @@ const ModelDel: React.FC<ModelBoxProps> = ({ deleteExam, examID, index }) => {
               deleteExam(examID, index);
             }}
           >
-            Yes
+          {t("Yes")}
           </Button>
         </Modal.Footer>
       </Modal>

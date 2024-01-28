@@ -31,41 +31,40 @@ const ExamForm: React.FC<ExamFormProps> = ({
           <div className="container mt-5 exam_form">
             <div className="d-flex justify-content-center row">
               <div className="col-md-10 col-lg-10">
-            <form onSubmit={saveAnswer} >
-
-                <div className="border">
-                  <div className="question bg-white p-3 border-bottom">
-                    <div className="d-flex flex-row justify-content-between align-items-center mcq">
-                      <h4>{selectedExam?.name}</h4>
+                <form onSubmit={saveAnswer}>
+                  <div className="border">
+                    <div className="question bg-white p-3 border-bottom">
+                      <div className="d-flex flex-row justify-content-between align-items-center mcq">
+                        <h4>{selectedExam?.name}</h4>
+                      </div>
+                    </div>
+                    <div className="question bg-white p-3 border-bottom">
+                      <div className="d-flex flex-row align-items-center question-title">
+                        <h3 className="text-danger">{t("Question.")} </h3>
+                        <h5 className="mt-1 mr-4">
+                          {selectedExam?.examQuestion}
+                        </h5>
+                      </div>
+                      <div className="ans ml-4">
+                        <textarea
+                          name="answer"
+                          id="answer"
+                          cols={30}
+                          rows={10}
+                          value={answer}
+                          onChange={handleAnswerChange}
+                        ></textarea>
+                      </div>
+                    </div>
+                    <div className="d-flex flex-row justify-content-center align-items-center p-3 bg-white">
+                      <button
+                        className="btn btn-primary border-success align-items-center btn-success"
+                        type="submit"
+                      >
+                        {t("Submit Answer")}
+                      </button>
                     </div>
                   </div>
-                  <div className="question bg-white p-3 border-bottom">
-                    <div className="d-flex flex-row align-items-center question-title">
-                      <h3 className="text-danger">Q. </h3>
-                      <h5 className="mt-1 mr-4">
-                        {selectedExam?.examQuestion}
-                      </h5>
-                    </div>
-                    <div className="ans ml-4">
-                      <textarea
-                        name="answer"
-                        id="answer"
-                        cols={30}
-                        rows={10}
-                        value={answer}
-                        onChange={handleAnswerChange}
-                      ></textarea>
-                    </div>
-                  </div>
-                  <div className="d-flex flex-row justify-content-center align-items-center p-3 bg-white">
-                    <button
-                      className="btn btn-primary border-success align-items-center btn-success"
-                      type="submit"
-                    >
-                      Submit Answer
-                    </button>
-                  </div>
-                </div>
                 </form>
               </div>
             </div>
@@ -73,7 +72,9 @@ const ExamForm: React.FC<ExamFormProps> = ({
         </>
       ) : (
         <div className="w-100 h-100 d-flex justify-content-center align-items-center">
-          <h1 className={styles.select_exam}>{t('Select an exam from the list')}</h1>
+          <h1 className={styles.select_exam}>
+            {t("Select an exam from the list")}
+          </h1>
         </div>
       )}
     </div>

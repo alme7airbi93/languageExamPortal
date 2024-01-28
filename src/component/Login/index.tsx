@@ -4,6 +4,7 @@ import Form from "react-bootstrap/Form";
 import styles from "./login.module.scss";
 import { useAuth } from "../../hooks/AuthProvider";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Login: React.FC<LoginProps> = () => {
   const [input, setInput] = useState({
@@ -13,6 +14,7 @@ const Login: React.FC<LoginProps> = () => {
   });
 
   const user = useAuth();
+  const { t } = useTranslation();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +41,7 @@ const Login: React.FC<LoginProps> = () => {
       <div className={`${styles.login_container}`}>
         <Form className="m-auto w-25">
           <Form.Group className="mb-3" controlId="user-email">
-            <Form.Label>Email address</Form.Label>
+            <Form.Label>{t("Email address")}</Form.Label>
             <Form.Control
               type="email"
               name="email"
@@ -49,7 +51,7 @@ const Login: React.FC<LoginProps> = () => {
             />
           </Form.Group>
           <Form.Group className="mb-3" controlId="password">
-            <Form.Label>Password</Form.Label>
+            <Form.Label>{t("Password")}</Form.Label>
             <Form.Control
               type="password"
               placeholder="*******"
@@ -59,13 +61,13 @@ const Login: React.FC<LoginProps> = () => {
           </Form.Group>
           <div className="d-flex justify-content-end">
             <Button variant="primary" onClick={handleLogin}>
-              Login
+            {t("Login")}
             </Button>
           </div>
           <Form.Text className="text-muted">
-            Don't have an account?{" "}
+            {t("Don't have an account?")}
             <Link to="/register">
-              Register here
+              {t("Register here")}
             </Link>
           </Form.Text>
         </Form>

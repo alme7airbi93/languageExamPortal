@@ -8,6 +8,7 @@ import "./teacher.css";
 import { Row, Col, Button, Modal } from "react-bootstrap";
 import CheckExam from "../CheckExam/checkExam";
 import { useAuth } from "../../hooks/AuthProvider";
+import { useTranslation } from "react-i18next";
 
 const TeacherScreen: React.FC = () => {
   const [examEnrollments, setExamEnrollments] = useState<EnrollExamInterface>();
@@ -23,6 +24,7 @@ const TeacherScreen: React.FC = () => {
   const [score, setScore] = useState<StudentScoreType>(
     StudentScoreType.PENDING
   );
+  const { t } = useTranslation();
 
   const user = useAuth();
   function handleFullScreen(isShowFullScreen: boolean) {
@@ -88,7 +90,7 @@ const TeacherScreen: React.FC = () => {
         />
       </Modal>
       <Button variant="secondary" onClick={user.logOut} className="logout">
-        Logout
+      {t("Logout")}
       </Button>
     </div>
   );

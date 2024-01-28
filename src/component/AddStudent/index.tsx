@@ -9,6 +9,7 @@ import { ExamEnrollment } from "../../Classes/ExamEnroll";
 import { Row, Col, Button, Modal } from "react-bootstrap";
 import { useAuth } from "../../hooks/AuthProvider";
 import Loader from "../Loader";
+import { useTranslation } from "react-i18next";
 
 const AddStudent: React.FC = () => {
   const [examEnrollments, setExamEnrollments] = useState<EnrollExamInterface>();
@@ -18,6 +19,7 @@ const AddStudent: React.FC = () => {
   const { user: authUser, ...authContext } = useAuth();
   const enrollExamController = new EnrollExamController();
   const [answer, setAnswer] = useState("");
+  const { t } = useTranslation();
 
   const saveAnswer: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -89,14 +91,14 @@ const AddStudent: React.FC = () => {
           />
           <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton dir="ltr">
-              <Modal.Title>Exam Submission</Modal.Title>
+              <Modal.Title>{t("Exam Submission")}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              Your answer is submitted. Select the next exam from exam list
+              {t("Your answer is submitted. Select the next exam from exam list")}
             </Modal.Body>
             <Modal.Footer className="d-flex justify-content-start">
               <Button variant="secondary" onClick={handleClose}>
-                Close
+              {t("Close")}
               </Button>
             </Modal.Footer>
           </Modal>
@@ -108,7 +110,7 @@ const AddStudent: React.FC = () => {
           onClick={() => authContext?.logOut()}
           className="logout"
         >
-          Logout
+        {t("Logout")}
         </Button>
       )}
     </div>

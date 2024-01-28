@@ -182,7 +182,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
                     </div>
                     <div className="question bg-white p-3 border-bottom">
                       <div className="d-flex flex-row align-items-center question-title">
-                        <h3 className="text-danger">Q. </h3>
+                        <h3 className="text-danger">{t("Question.")}</h3>
                         <h5 className="mt-1 mr-4">
                           {selectedExam?.examQuestion}
                         </h5>
@@ -202,7 +202,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
                             <h5
                               className={`text-center fw-bold mb-3 text-capitalize`}
                             >
-                              Students Enrolled
+                              {t("Students Enrolled")}
                             </h5>
                             {enrollments?.map(
                               // @ts-ignore
@@ -246,7 +246,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
                           <div className="d-flex gap-4 mb-3 align-items-center ">
                             {!!selectedAnswer.length && (
                               <>
-                                <h5 className="mt-1">Score: </h5>
+                                <h5 className="mt-1">{t("Score: ")}</h5>
                                 <Form.Select
                                   aria-label="score"
                                   id="score"
@@ -255,7 +255,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
                                   className={styles.score}
                                 >
                                   <option value={StudentScoreType.PENDING}>
-                                    ADD STUDENT SCORE
+                                  {t("ADD STUDENT SCORE")}
                                   </option>
                                   <option value={StudentScoreType.POOR}>
                                     {StudentScoreType.POOR}
@@ -270,13 +270,13 @@ const CheckExam: React.FC<CheckExamProps> = ({
                                     {StudentScoreType.EXCELLENT}
                                   </option>
                                 </Form.Select>
-                                <Button onClick={handleShow}>Ask AI</Button>{" "}
+                                <Button onClick={handleShow}>{t("Ask AI")}</Button>{" "}
                               </>
                             )}
                           </div>
                           <Modal show={show} onHide={handleClose}>
                             <Modal.Header>
-                              <Modal.Title>Ask AI</Modal.Title>
+                              <Modal.Title>{t("Ask AI")}</Modal.Title>
                             </Modal.Header>
                             <Modal.Body>
                               <div className={styles.message_container}>
@@ -316,7 +316,7 @@ const CheckExam: React.FC<CheckExamProps> = ({
                               <div className={styles.wrapper}>
                                 <input
                                   className={styles.text}
-                                  placeholder="Your prompt here..."
+                                  placeholder={t("Your prompt here...")}
                                   value={input}
                                   onChange={(e) => setInput(e.target.value)}
                                 />
@@ -324,13 +324,13 @@ const CheckExam: React.FC<CheckExamProps> = ({
                                   className={styles.btn}
                                   onClick={handleSubmit}
                                 >
-                                  Ask
+                                  {t("Ask")}
                                 </button>
                               </div>
                             </Modal.Body>
                             <Modal.Footer>
                               <Button variant="secondary" onClick={handleClose}>
-                                Close
+                              {t("Close")}
                               </Button>
                             </Modal.Footer>
                           </Modal>
@@ -341,19 +341,19 @@ const CheckExam: React.FC<CheckExamProps> = ({
                             id="noanim-tab-example"
                             className="mb-3"
                           >
-                            <Tab eventKey="answer" title="Answer">
+                            <Tab eventKey="answer" title={`${t("Answer")}`}>
                               {!!selectedAnswer.length ? (
                                 <div>{selectedAnswer}</div>
                               ) : (
                                 <div>
                                   <p className="fw-bold fs-5">
-                                    Click on any student to see his/her answer
+                                  {t("Click on any student to see his/her answer")}
                                   </p>
                                 </div>
                               )}
                             </Tab>
                             {messages.length > 1 && (
-                              <Tab eventKey="response" title="AI Response">
+                              <Tab eventKey="response" title={`${t("AI Response")}`}>
                                 <div className={styles.ai_response_container}>
                                   {messages.map(
                                     ({ role, content }, i) =>

@@ -5,6 +5,7 @@ import Form from "react-bootstrap/Form";
 import ExamController from "../../controllers/examController";
 import "./modelbox.css";
 import { Exam, ExamInterface } from "../../Classes/Exams";
+import { useTranslation } from "react-i18next";
 
 const ModelBox: React.FC<ModelBoxProps> = ({
   mode,
@@ -18,6 +19,8 @@ const ModelBox: React.FC<ModelBoxProps> = ({
 }) => {
   const [name, setName] = useState("");
   const [examQuestion, setExamQuestion] = useState("");
+  const { t } = useTranslation();
+
   const handleClose = () => {
     setShow(false);
     setName("");
@@ -58,9 +61,9 @@ const ModelBox: React.FC<ModelBoxProps> = ({
 
   const modelMode = () => {
     if (mode === "save") {
-      return "Create ";
+      return `${t("Create")}`;
     } else if (mode === "edit") {
-      return "Edit ";
+      return `${t("Edit")}`;
     }
   };
 
@@ -68,12 +71,14 @@ const ModelBox: React.FC<ModelBoxProps> = ({
     <>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header className="text-capitalize">
-          <Modal.Title>{modelMode()} Exam</Modal.Title>
+          <Modal.Title>
+            {modelMode()} {t("Exam")}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-              <Form.Label>Exam Name</Form.Label>
+              <Form.Label> {t("Exam Name")}</Form.Label>
               <Form.Control
                 type="name"
                 placeholder="name"
@@ -86,7 +91,7 @@ const ModelBox: React.FC<ModelBoxProps> = ({
               className="mb-3"
               controlId="exampleForm.ControlTextarea1"
             >
-              <Form.Label>Exam Question</Form.Label>
+              <Form.Label> {t("Exam Question")}</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
@@ -98,14 +103,14 @@ const ModelBox: React.FC<ModelBoxProps> = ({
         </Modal.Body>
         <Modal.Footer className="d-flex justify-content-start">
           <Button variant="secondary" onClick={handleClose}>
-            Close
+            {t("Close")}
           </Button>
           <Button
             variant="primary"
             onClick={saveExam}
             className="text-capitalize"
           >
-            {modelMode()} Exam
+            {modelMode()} {t("Exam")}
           </Button>
         </Modal.Footer>
       </Modal>
