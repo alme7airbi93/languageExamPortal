@@ -115,12 +115,12 @@ const CheckExam: React.FC<CheckExamProps> = ({
     if (input === "") return;
     let prompt: MessageInterface = {
       role: "user",
-      content: input + " Student Question: " + selectedExam?.examQuestion + " Student Answer: " + selectedAnswer,
+      content: input + " سؤال الاختبار :  " + selectedExam?.examQuestion + " جواب الطالب : " + selectedAnswer,
     };
     if (messages.length > 2) {
       prompt = {
         role: "user",
-        content: input,
+        content: input + " سؤال الاختبار :  " + selectedExam?.examQuestion + " جواب الطالب : " + selectedAnswer,
       };
     }
     setMessages([...messages, prompt]);
